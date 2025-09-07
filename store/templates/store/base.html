@@ -127,5 +127,37 @@
             </div>
         </div>
         <!-- Copyright -->
+
+        <!-- GDPR & Cookie Consent Modal -->
+        <div class="modal fade" id="cookieConsentModal" tabindex="-1" aria-labelledby="cookieConsentLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content bg-light">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cookieConsentLabel">Cookie & Privacy Policy</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Our Data Privacy & Cookie Policy</h5>
+                        <p>
+                            We use cookies and collect data to improve your experience. By continuing to browse, you agree to our privacy policy.
+                            <br />
+                            <br />
+                            <strong>GDPR compliance:</strong> We respect your privacy and only use your data as outlined in our privacy policy.
+                        </p>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="acceptCookiesCheckbox" />
+                            <label class="form-check-label" for="acceptCookiesCheckbox">
+                                I accept the use of cookies and data collection.
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="acceptCookiesBtn" disabled>Accept</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Decline</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="{% static 'js/consent.js' %}"></script>
     </body>
 </html>

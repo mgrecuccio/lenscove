@@ -7,7 +7,7 @@
                 <div class="banner-content text-center text-light fw-light my-5 py-5">
                     <figure>
                         <blockquote class="blockquote">
-                            <p class="mb-0">You don’t take a photograph, you make it.</p>
+                            <p class="mb-0">You don&#39;t take a photograph, you make it.</p>
                         </blockquote>
                         <figcaption class="blockquote-footer text-light">
                             <cite title="Source Title">Ansel Adams</cite>
@@ -33,10 +33,10 @@
                         <h3 class="fs-5">{{product.title}}</h3>
                         <p class="small fw-light">{{product.description}}</p>
                         <h4 class="small text-dark-emphasis text-end">{{product.price}} €</h4>
-                        <a href="{{product.get_absolute_url}}" class="btn btn-sm btn-dark rounded-pill shadow-sm px-3">
-                            <i class="fa-solid fa-bag-shopping"></i>
-                            Buy
-                        </a>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{{product.get_absolute_url}}" class="btn btn-sm btn-dark rounded-pill shadow-sm px-3"> <i class="fa-solid fa-bag-shopping"></i> Buy </a>
+                            <a><span class="badge bg-light">#{{product.category}}</span></a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,7 +45,7 @@
         <!-- Add the button here -->
         <div class="text-center my-4">
             <a href="#" class="btn btn-dark rounded-pill shadow-sm mb-3">
-                View All Images
+                View Gallery
             </a>
         </div>
     </div>

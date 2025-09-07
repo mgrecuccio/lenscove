@@ -13,3 +13,15 @@
     background-size: cover;
     background-position: center;
 }
+
+@media (max-width: 576px) {
+  .banner-content p {
+    font-size: 0.8rem; /* smaller font for small screens */
+  }
+  .banner-content blockquote {
+    font-size: 0.9rem; /* smaller font for blockquote text */
+  }
+  .banner-content figcaption {
+    font-size: 0.8rem; /* smaller font for caption */
+  }
+}
