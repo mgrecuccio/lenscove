@@ -1,16 +1,24 @@
 from django.db import models
 
-# Create your models here.
+from django.urls import reverse
+
+
 class Category(models.Model):
 
     name = models.CharField(max_length=250, db_index=True)
     slug = models.SlugField(max_length=250, unique=True)
 
+   
     class Meta:
         verbose_name_plural = 'categories'
 
+    
     def __str__(self):
         return self.name
+    
+
+    #def get_absolute_url(self):
+        #return reverse('pcategory_list', kwargs={'slug': self.slug})
     
 
 
@@ -24,8 +32,14 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=4, decimal_places=2)
     image = models.ImageField(upload_to='images/')
 
+    
     class Meta:
         verbose_name_plural = 'products'
 
+    
     def __str__(self):
         return self.title
+    
+    
+    def get_absolute_url(self):
+        return reverse('product_details', kwargs={'slug': self.slug})
