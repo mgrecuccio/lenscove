@@ -25,7 +25,7 @@
     <div class="container">
         <h4 class="text-success-emphasis fw-light">Best Sellers:</h4>
         <div class="row g-3 mt-md-3">
-            {% for product in all_products %}
+            {% for product in best_sellers %}
             <div class="col-md-3">
                 <div class="card shadow-sm mb-3">
                     <img class="product-img-top" src="{{product.image.url}}" alt="Product Image" />
@@ -44,7 +44,7 @@
         </div>
         <!-- Add the button here -->
         <div class="text-center my-4">
-            <a href="#" class="btn btn-dark rounded-pill shadow-sm mb-3">
+            <a href="{% url 'gallery' %}" class="btn btn-dark rounded-pill shadow-sm mb-3">
                 View Gallery
             </a>
         </div>
