@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from django.urls import reverse
 
@@ -21,7 +22,6 @@ class Category(models.Model):
         #return reverse('pcategory_list', kwargs={'slug': self.slug})
     
 
-
 class Product(models.Model):
 
     category = models.ForeignKey(Category, related_name='product', on_delete=models.CASCADE, null=True)
@@ -43,3 +43,20 @@ class Product(models.Model):
     
     def get_absolute_url(self):
         return reverse('product_details', kwargs={'slug': self.slug})
+
+
+class ImageDimension(models.TextChoices):
+    NORMAL = 'normal', _('10x15cm')
+    MEDIUM = 'medium', _('13x18cm')
+    BIG = 'big', _('20x30cm')
+
+
+class FrameType(models.TextChoices):
+    PLASTIC = ('plastic', _('Plastic'))
+    WOODEN = ('wooden', _('Wooden'))
+
+
+class FrameColor(models.TextChoices):
+    BLACK = ('black', _('Black'))
+    WOOD = ('wood', _('Wood'))
+    WHITE = ('white', _('White'))

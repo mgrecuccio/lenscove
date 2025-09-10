@@ -20,7 +20,7 @@
     });
 
     // Optional: handle decline
-    document.querySelector('.modal-footer .btn-secondary').addEventListener('click', function () {
+    document.querySelector('.modal-footer .btn-dark').addEventListener('click', function () {
       localStorage.setItem('cookieConsent', 'declined');
     });
   });
