@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.http import Http404
 from unittest.mock import patch
+from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from store.views import categories, product_details
@@ -42,17 +43,21 @@ class StoreViewsTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         
-        self.category = Category.objects.create(name='Test Category')
+        self.category = Category.objects.create(name='Test Category', slug='test-category')
+        self.category2 = Category.objects.create(name='Test Category 2', slug='test-category-2')
 
         self.product1 = Product.objects.create(
+            category=self.category,
             title='Product-1',
             brand='test-brand',
             description='test-description',
             slug='product-1',
             price=9.99,
             image=get_test_image()
+      
         )
         self.product2 = Product.objects.create(
+            category=self.category,
             title='Product-2',
             brand='test-brand',
             description='test-description',
@@ -61,6 +66,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product3 = Product.objects.create(
+            category=self.category,
             title='Product-3',
             brand='test-brand',
             description='test-description',
@@ -69,6 +75,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product4 = Product.objects.create(
+            category=self.category,
             title='Product-4',
             brand='test-brand',
             description='test-description',
@@ -77,6 +84,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product5 = Product.objects.create(
+            category=self.category2,
             title='Product-5',
             brand='test-brand',
             description='test-description',
@@ -87,13 +95,19 @@ class StoreViewsTestCase(TestCase):
 
 
     def test_categories_view(self):
+        """
+        When all_categories URL, all the stored categories are returned.
+        """
         request = self.factory.get('/categories/')
         response_data = categories(request)
         self.assertIn(self.category, response_data['all_categories'])
-        self.assertEqual(len(response_data['all_categories']), 1)
+        self.assertEqual(len(response_data['all_categories']), 2)
 
 
     def test_best_sellers_view(self):
+        """
+        When calling home URL, the first 4 products are shown.
+        """
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'store/store.html')
         self.assertEqual(response.status_code, 200)
@@ -103,17 +117,38 @@ class StoreViewsTestCase(TestCase):
         self.assertEqual(list(context['best_sellers']), [self.product1, self.product2, self.product3, self.product4])
 
 
-    def test_gallery_view(self):
-        response = self.client.get('/gallery')
-        self.assertTemplateUsed(response, 'store/gallery.html')
+    def test_gallery_with_categories(self):
+        """
+        Test that the gallery page correctly links only categories with a valid slug.
+        """
+        response = self.client.get(reverse('gallery'))
         self.assertEqual(response.status_code, 200)
-        context = response.context
-        self.assertIn('all_products', context)
-        self.assertEqual(len(context['all_products']), 5)
+
+        valid_url = reverse('gallery_by_category', kwargs={'slug': self.category.slug})
+        self.assertContains(response, f'href="{valid_url}"')
+        self.assertContains(response, f'#{self.category.name}')
+
+
+    def test_filter_products_by_category(self):
+        """
+        When calling gallery_by_category URL, only products in that category are shown.
+        """
+        url = reverse('gallery_by_category', kwargs={'slug': self.category2.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.product5.title, count=1)
+        self.assertNotContains(response, self.product2.title)
+        self.assertNotContains(response, self.product3.title)
+        self.assertNotContains(response, self.product4.title)
+        self.assertNotContains(response, self.product4.title)
 
     
     @patch('django.shortcuts.get_object_or_404')
     def test_product_details_view(self, mock_get):
+        """
+        When calling product_details URL, the information product are shown.
+        """
         mock_get.return_value = self.product1
         response = self.client.get('/product/product-1/')
         self.assertEqual(response.status_code, 200)
@@ -127,6 +162,9 @@ class StoreViewsTestCase(TestCase):
 
     @patch('django.shortcuts.get_object_or_404')
     def test_product_details_not_found(self, mock_get):
+        """
+        When calling product_details URL with a non-existent slug, the code 404 is returned.
+        """
         mock_get.side_effect = Http404("No Product matches the given query.")
         request = self.factory.get('/product/non-existent/')
         with self.assertRaises(Http404):

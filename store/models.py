@@ -18,8 +18,8 @@ class Category(models.Model):
         return self.name
     
 
-    #def get_absolute_url(self):
-        #return reverse('pcategory_list', kwargs={'slug': self.slug})
+    def get_absolute_url(self):
+        return reverse('category_list', kwargs={'slug': self.slug})
     
 
 class Product(models.Model):

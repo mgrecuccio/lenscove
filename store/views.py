@@ -10,9 +10,21 @@ def best_sellers(request):
     context = {'best_sellers': best_sellers}
     return render(request, 'store/store.html', context)
 
-def gallery(request):
-    all_products = Product.objects.all()
-    context = {'all_products': all_products}
+
+def gallery(request, slug=None):
+    if slug:
+        try:
+            selected_category = Category.objects.get(slug=slug)
+            all_products = Product.objects.filter(category=selected_category)
+        except Category.DoesNotExist:
+            all_products = Product.objects.none()
+    else:
+        all_products = Product.objects.all()
+
+    context = {
+        'all_products': all_products,
+        'current_category': slug,
+    }
     return render(request, 'store/gallery.html', context)
 
 
