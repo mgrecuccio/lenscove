@@ -11,7 +11,17 @@ def best_sellers(request):
     return render(request, 'store/store.html', context)
 
 def gallery(request):
-    all_products = Product.objects.all()
+    category_slug = request.GET.get('category')
+    
+    if category_slug:
+        try:
+            selected_category = Category.objects.get(slug=category_slug)
+            all_products = Product.objects.filter(category=selected_category)
+        except Category.DoesNotExist:
+            all_products = Product.objects.none()
+    else:
+        all_products = Product.objects.all()
+        
     context = {'all_products': all_products}
     return render(request, 'store/gallery.html', context)
 

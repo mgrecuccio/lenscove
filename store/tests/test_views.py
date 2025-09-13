@@ -4,6 +4,7 @@ from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.http import Http404
 from unittest.mock import patch
+from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from store.views import categories, product_details
@@ -42,17 +43,21 @@ class StoreViewsTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         
-        self.category = Category.objects.create(name='Test Category')
+        self.category = Category.objects.create(name='Test Category', slug='test-category')
+        self.category2 = Category.objects.create(name='Test Category 2', slug='test-category-2')
 
         self.product1 = Product.objects.create(
+            category=self.category,
             title='Product-1',
             brand='test-brand',
             description='test-description',
             slug='product-1',
             price=9.99,
             image=get_test_image()
+      
         )
         self.product2 = Product.objects.create(
+            category=self.category,
             title='Product-2',
             brand='test-brand',
             description='test-description',
@@ -61,6 +66,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product3 = Product.objects.create(
+            category=self.category,
             title='Product-3',
             brand='test-brand',
             description='test-description',
@@ -69,6 +75,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product4 = Product.objects.create(
+            category=self.category,
             title='Product-4',
             brand='test-brand',
             description='test-description',
@@ -77,6 +84,7 @@ class StoreViewsTestCase(TestCase):
             image=get_test_image()
         )
         self.product5 = Product.objects.create(
+            category=self.category2,
             title='Product-5',
             brand='test-brand',
             description='test-description',
@@ -90,7 +98,7 @@ class StoreViewsTestCase(TestCase):
         request = self.factory.get('/categories/')
         response_data = categories(request)
         self.assertIn(self.category, response_data['all_categories'])
-        self.assertEqual(len(response_data['all_categories']), 1)
+        self.assertEqual(len(response_data['all_categories']), 2)
 
 
     def test_best_sellers_view(self):
@@ -103,6 +111,13 @@ class StoreViewsTestCase(TestCase):
         self.assertEqual(list(context['best_sellers']), [self.product1, self.product2, self.product3, self.product4])
 
 
+    def test_gallery_with_invalid_category(self):
+        response = self.client.get(reverse('gallery') + '?category=non-existent-slug')
+        self.assertEqual(response.status_code, 200)
+        products = response.context['all_products']
+        self.assertEqual(products.count(), 0)
+
+
     def test_gallery_view(self):
         response = self.client.get('/gallery')
         self.assertTemplateUsed(response, 'store/gallery.html')
@@ -110,6 +125,18 @@ class StoreViewsTestCase(TestCase):
         context = response.context
         self.assertIn('all_products', context)
         self.assertEqual(len(context['all_products']), 5)
+
+
+    def test_gallery_with_valid_category(self):
+        response = self.client.get(reverse('gallery') + '?category=test-category-2')
+        self.assertEqual(response.status_code, 200)
+        products = response.context['all_products']
+
+        self.assertEqual(products.count(), 1)
+        self.assertEqual(products.first().title, 'Product-5')
+
+
+
 
     
     @patch('django.shortcuts.get_object_or_404')
