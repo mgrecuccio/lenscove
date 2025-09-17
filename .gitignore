@@ -2,3 +2,6 @@
 db.sqlite3
 __pycache__/
 /venv/
+static/.DS_Store
+config/__pycache__/
+.DS_Store
