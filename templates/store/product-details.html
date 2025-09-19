@@ -1,4 +1,4 @@
-{% extends "./base.html" %} {% load static %} {% block content %}
+{% extends "base.html" %} {% load static %} {% block content %}
 <!-- Product Details -->
 <section class="product-details pt-5 bg-light md-mb-4">
    <div class="container pt-5 mb-3">
@@ -11,14 +11,14 @@
                      <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                            <span>Unit price:</span>
-                           <span class="fw-bold">{{product.price}} €</span>
+                           <span id="unitPrice" class="fw-bold">{{product.price}}</span>€
                         </div>
                      </div>
             </div>
          </div>
          <div class="col-12 col-md-5">
             <div class="flex-fill d-flex flex-column">
-               <form class="purchase-form mt-md-3" id="purchaseForm" method="POST" action="#">
+               <form id="purchase-form" class="purchase-form mt-md-3" id="purchaseForm" method="POST" action="#">
                   {% csrf_token %}
 
                   <div class="row image-dimension spacing-between-rows">
@@ -54,9 +54,9 @@
                   <div class="row quantity spacing-between-rows">
                      <h6 class="text-success-emphasis">Quantity:</h6>
                         <div class="d-flex gap-2 justify-content-center text-success-emphasis">
-                           <button class="btn btn-outline-secondary" id="decreaseBtn">-</button>
+                           <button type="button" class="btn btn-outline-secondary" id="decreaseBtn">-</button>
                            <input type="text" id="quantityInput" class="form-control text-center" value="1" style="width: 60px;" />
-                           <button class="btn btn-outline-secondary" id="increaseBtn">+</button>
+                           <button type="button" class="btn btn-outline-secondary" id="increaseBtn">+</button>
                         </div>
                   </div>
 
@@ -64,7 +64,7 @@
                      <div class="col-5 col-md-6">
                         <h6 class="text-success-emphasis">Total Price: </h6>
                      <div class="input-group">
-                        <input readonly type="text" class="form-control" aria-label="Total Price" value="{{ product.price }}">
+                        <input id="totalPriceInput" readonly type="text" class="form-control" aria-label="Total Price" value="{{ product.price }}">
                         <span class="input-group-text">€</span>
                      </div>
                      </div>
