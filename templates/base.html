@@ -48,15 +48,15 @@
                   </a>
                   <a href="{% url 'cart:cart_detail' %}" 
                      class="btn position-relative btn-outline-secondary me-md-2">
-                     <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>
-                     <span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">
-                        {% with quantity_amount=cart_length %}
-                           {% if quantity_amount > 0 %}
-                              {{ quantity_amount }}
-                           {% endif %}
-                        {% endwith %}
-                        <span class="visually-hidden">unread messages</span>
-                     </span>
+                  <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>
+                  {% with quantity_amount=cart_length %}
+                  {% if quantity_amount > 0 %}
+                  <span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">
+                  {{ quantity_amount }}
+                  </span>
+                  <span class="visually-hidden">unread messages</span>
+                  {% endif %}
+                  {% endwith %}
                   </a>
                </div>
             </div>

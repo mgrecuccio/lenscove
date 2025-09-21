@@ -1,19 +1,88 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<!-- Order Details -->
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 <section class="product-details pt-5 bg-light md-mb-4">
    <div class="container pt-5 mb-3">
       <h4 class="text-success-emphasis mb-md-3">Order Details</h4>
       <hr class="md-md-3">
-      <ul>
-        {% for item in cart %}
-          <li>
-              {{ item.product.title }} ({{ item.dimension }}, {{ item.frame_type }}, {{ item.frame_color }})
-              – {{ item.quantity }} × {{ item.product.price }} €
-              = {{ item.total_price }} €
-          </li>
-        {% endfor %}
-      </ul>
+      {% if cart %}
+      <div class="row g-4">
+         {% for item in cart %}
+         <div class="col-12">
+            <div class="card shadow-sm border-0">
+               <div class="row g-0 align-items-center">
+                  <!-- Product image preview -->
+                  <div class="col-md-2 text-center">
+                     <img src="{{ item.product.image.url }}" class="img-fluid rounded-start" alt="{{ item.product.name }}" style="max-height: 100px; object-fit: contain;">
+                  </div>
+                  <!-- Product details -->
+                  <div class="col-md-7">
+                     <div class="card-body">
+                        <h5 class="card-title mb-1">{{ item.product.name }}</h5>
+                        <p class="card-text small text-muted mb-2">
+                           {% if item.dimension %}Dimension: {{ item.dimension }} <br>{% endif %}
+                           {% if item.frame_type %}Frame: {{ item.frame_type }} <br>{% endif %}
+                           {% if item.frame_color %}Color: {{ item.frame_color }} <br>{% endif %}
+                        </p>
+                        <p class="fw-bold mb-0">€ {{ item.total_price }}</p>
+                     </div>
+                  </div>
+                  <!-- Quantity + Remove -->
+                  <div class="col-md-3 text-center">
+                     <!-- Quantity update form -->
+                     <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="d-inline-flex align-items-center mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="override" value="true">
+                        <button
+                           type="submit"
+                           name="quantity" 
+                           value="{{ item.quantity|add:"-1" }}" class="btn btn-outline-secondary btn-sm" 
+                           {% if item.quantity <= 1 %}disabled{% endif %}>
+                           −
+                        </button>
+                        <span class="mx-2">{{ item.quantity }}</span>
+                        <button
+                           type="submit" 
+                           name="quantity" 
+                           value="{{ item.quantity|add:"1" }}" 
+                           class="btn btn-outline-secondary btn-sm">
+                           +
+                        </button>
+                     </form>
+                     <!-- Remove button -->
+                     <form method="post" action="{% url 'cart:cart_remove' item.product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fa-solid fa-trash"></i> Remove
+                        </button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+         {% endfor %}
+      </div>
+      <!-- Cart summary -->
+      <div class="mt-5 text-center">
+         <h4>Total: € {{ cart.get_total_price }}</h4>
+      </div>
+      <!-- Action buttons -->
+      <div class="d-flex justify-content-center gap-3 mt-4">
+         <a href="{% url 'store' %}" class="btn btn-outline-secondary btn-lg">
+         <i class="fa-solid fa-arrow-left me-1"></i> Continue Shopping
+         </a>
+         <a href="#" class="btn btn-success btn-lg">
+         <i class="fa-solid fa-credit-card me-1"></i> Checkout
+         </a>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+         <p class="lead">Your cart is empty.</p>
+         <a href="{% url 'store' %}" class="btn btn-primary btn-lg">
+         <i class="fa-solid fa-store me-1"></i> Start Shopping
+         </a>
+      </div>
+      {% endif %}
    </div>
 </section>
-<!-- Order Details -->
 {% endblock %}
