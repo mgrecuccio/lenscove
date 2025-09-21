@@ -46,8 +46,17 @@
                   <a class="btn btn-alert navbar-btn text-white btn-outline-secondary me-md-2" type="button" href="/">
                   Login
                   </a>
-                  <a type="button" role="button" href="{% url 'cart-summary' %}" class="btn btn-outline-secondary me-md-2">
-                  <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>
+                  <a href="{% url 'cart:cart_detail' %}" 
+                     class="btn position-relative btn-outline-secondary me-md-2">
+                     <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>
+                     <span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">
+                        {% with quantity_amount=cart_length %}
+                           {% if quantity_amount > 0 %}
+                              {{ quantity_amount }}
+                           {% endif %}
+                        {% endwith %}
+                        <span class="visually-hidden">unread messages</span>
+                     </span>
                   </a>
                </div>
             </div>

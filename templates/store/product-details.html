@@ -18,7 +18,7 @@
          </div>
          <div class="col-12 col-md-5">
             <div class="flex-fill d-flex flex-column">
-               <form id="purchase-form" class="purchase-form mt-md-3" id="purchaseForm" method="POST" action="#">
+               <form id="purchase-form" class="purchase-form mt-md-3" id="purchaseForm" method="POST" action="{% url 'cart:cart_add' product.id %}">
                   {% csrf_token %}
 
                   <div class="row image-dimension spacing-between-rows">
