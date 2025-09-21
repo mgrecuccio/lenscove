@@ -95,9 +95,6 @@ class StoreViewsTestCase(TestCase):
 
 
     def test_categories_view(self):
-        """
-        When all_categories URL, all the stored categories are returned.
-        """
         request = self.factory.get('/categories/')
         response_data = categories(request)
         self.assertIn(self.category, response_data['all_categories'])
@@ -105,9 +102,6 @@ class StoreViewsTestCase(TestCase):
 
 
     def test_best_sellers_view(self):
-        """
-        When calling home URL, the first 4 products are shown.
-        """
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'store/store.html')
         self.assertEqual(response.status_code, 200)
@@ -118,9 +112,6 @@ class StoreViewsTestCase(TestCase):
 
 
     def test_gallery_with_categories(self):
-        """
-        Test that the gallery page correctly links only categories with a valid slug.
-        """
         response = self.client.get(reverse('gallery'))
         self.assertEqual(response.status_code, 200)
 
@@ -130,9 +121,6 @@ class StoreViewsTestCase(TestCase):
 
 
     def test_filter_products_by_category(self):
-        """
-        When calling gallery_by_category URL, only products in that category are shown.
-        """
         url = reverse('gallery_by_category', kwargs={'slug': self.category2.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -146,9 +134,6 @@ class StoreViewsTestCase(TestCase):
     
     @patch('django.shortcuts.get_object_or_404')
     def test_product_details_view(self, mock_get):
-        """
-        When calling product_details URL, the information product are shown.
-        """
         mock_get.return_value = self.product1
         response = self.client.get('/product/product-1/')
         self.assertEqual(response.status_code, 200)
@@ -162,9 +147,6 @@ class StoreViewsTestCase(TestCase):
 
     @patch('django.shortcuts.get_object_or_404')
     def test_product_details_not_found(self, mock_get):
-        """
-        When calling product_details URL with a non-existent slug, the code 404 is returned.
-        """
         mock_get.side_effect = Http404("No Product matches the given query.")
         request = self.factory.get('/product/non-existent/')
         with self.assertRaises(Http404):
