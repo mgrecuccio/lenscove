@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<section class="product-details pt-5 bg-light">
+  <div class="container pt-5 mb-5">
+
+    {% if order and order.items.count %}
+      <div class="text-center mb-5">
+        <div class="alert alert-success shadow-sm" role="alert">
+          <h4 class="alert-heading">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            Thank you for your order!
+          </h4>
+          <p class="mb-0">Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
+        </div>
+      </div>
+      
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0"><i class="fa-solid fa-box-open me-2"></i> Order Summary</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th>Options</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-end">Unit Price</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                  <td class="fw-medium">{{ item.product.title }}</td>
+                  <td>
+                    {% if item.dimension %}<span class="badge bg-secondary me-1">Size: {{ item.dimension }}</span>{% endif %}
+                    {% if item.frame_type %}<span class="badge bg-secondary me-1">Frame: {{ item.frame_type }}</span>{% endif %}
+                    {% if item.frame_color %}<span class="badge bg-secondary">Color: {{ item.frame_color }}</span>{% endif %}
+                  </td>
+                  <td class="text-center">{{ item.quantity }}</td>
+                  <td class="text-end">{{ item.price }} €</td>
+                  <td class="text-end fw-bold">{{ item.get_cost }} €</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="text-end mt-3">
+            <h5 class="fw-bold">Order Total: {{ order.get_total_cost }} €</h5>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-5">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0"><i class="fa-solid fa-truck me-2"></i> Shipping Information</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li><i class="fa-solid fa-user me-2 text-muted"></i> {{ order.first_name }} {{ order.last_name }}</li>
+            <li><i class="fa-solid fa-location-dot me-2 text-muted"></i> {{ order.address }}, {{ order.postal_code }} {{ order.city }}</li>
+            <li><i class="fa-solid fa-envelope me-2 text-muted"></i> {{ order.email }}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-center py-3">
+        <a href="{% url 'store' %}" class="btn btn-outline-secondary btn-lg">
+          <i class="fa-solid fa-arrow-left me-2"></i> Continue Shopping
+        </a>
+      </div>
+
+    {% else %}
+      <div class="text-center py-3">
+        <div class="alert alert-danger shadow-sm" role="alert">
+          <h5><i class="fa-solid fa-triangle-exclamation me-2"></i> Order not found</h5>
+          <p class="mb-0">We're sorry, but we couldn't find your order.</p>
+        </div>
+        <a href="{% url 'store' %}" class="btn btn-outline-secondary btn-lg mt-3">
+          <i class="fa-solid fa-arrow-left me-2"></i> Continue Shopping
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

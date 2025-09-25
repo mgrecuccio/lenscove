@@ -7,8 +7,9 @@ from unittest.mock import patch
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
+from cart.forms import AddToCartForm
 from store.views import categories, product_details
-from store.models import Product, Category, ImageDimension, FrameType, FrameColor
+from store.models import Product, Category
 
 def get_test_image():
     image = Image.new('RGB', (100, 100), color='blue')
@@ -140,9 +141,9 @@ class StoreViewsTestCase(TestCase):
         self.assertTemplateUsed(response, 'store/product-details.html')
 
         self.assertEqual(response.context['product'], self.product1)
-        self.assertEqual(response.context['image_dimensions'], ImageDimension)
-        self.assertEqual(response.context['frame_types'], FrameType)
-        self.assertEqual(response.context['frame_colors'], FrameColor)
+        self.assertIsNotNone(response.context['form'], "Form should be in context")
+        self.assertTrue(response.context['form'].fields, "Form should have fields")
+        self.assertEqual(type(response.context['form']), AddToCartForm)
 
 
     @patch('django.shortcuts.get_object_or_404')
