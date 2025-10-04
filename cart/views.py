@@ -1,8 +1,13 @@
+from . import logging
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from .cart import Cart
 from store.models import Product
+
+logger = logging.getLogger(__name__)
+
+
 from cart.forms import AddToCartForm
 
 
@@ -20,6 +25,7 @@ def cart_add(request, product_id):
     form = AddToCartForm(request.POST)
 
     if form.is_valid():
+        logger.info(f"Adding product {product_id} to cart with data: {form.cleaned_data}")
         cd = form.cleaned_data
         quantity=cd["quantity"]
         dimension=cd["dimension"]
@@ -34,6 +40,8 @@ def cart_add(request, product_id):
             frame_type=frame_type,
             frame_color=frame_color,
         )
+    else:
+        logger.warning(f"Invalid form data when adding product {product_id} to cart: {form.errors}")
     
     return redirect("cart:cart_detail")
 

@@ -1,3 +1,4 @@
+from . import logging
 from decimal import Decimal
 from django.conf import settings
 from store.models import Product
@@ -22,6 +23,7 @@ class Cart:
                 'frame_type': frame_type,
                 'frame_color': frame_color,
             }
+            logging.info(f"Product {product_id} added to cart")
 
         if override_quantity:
             self.cart[product_id]['quantity'] = quantity
@@ -48,6 +50,7 @@ class Cart:
         if product_id in self.cart:
             del self.cart[product_id]
             self.save()
+            logging.info(f"Product {product_id} removed from cart")
 
     
     def contains(self, product):
