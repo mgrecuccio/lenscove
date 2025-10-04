@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-{% load static %}
-{% block content %}
+{% extends "base.html" %} {% load static %} {% block content %}
 <section class="product-details pt-5 bg-light md-mb-4">
    <div class="container pt-5 mb-3">
       <h4 class="text-success-emphasis mb-md-3">Order Details</h4>
@@ -30,9 +28,8 @@
                   <!-- Quantity + Remove -->
                   <div class="col-md-3 text-center">
                      <!-- Quantity update form -->
-                     <form method="post" action="{% url 'cart:cart_add' item.product.id %}" class="d-inline-flex align-items-center mb-2">
+                     <form method="post" action="{% url 'cart:cart_update' item.product.id %}" class="d-inline-flex align-items-center mb-2">
                         {% csrf_token %}
-                        <input type="hidden" name="override" value="true">
                         <button
                            type="submit"
                            name="quantity" 
@@ -62,16 +59,14 @@
          </div>
          {% endfor %}
       </div>
-      <!-- Cart summary -->
       <div class="mt-5 text-center">
          <h4>Total: € {{ cart.get_total_price }}</h4>
       </div>
-      <!-- Action buttons -->
-      <div class="d-flex justify-content-center gap-3 mt-4">
+      <div class="d-flex justify-content-center gap-3 py-3">
          <a href="{% url 'store' %}" class="btn btn-outline-secondary btn-lg">
          <i class="fa-solid fa-arrow-left me-1"></i> Continue Shopping
          </a>
-         <a href="#" class="btn btn-success btn-lg">
+         <a href="{% url 'orders:order_create' %}" class="btn btn-success btn-lg">
          <i class="fa-solid fa-credit-card me-1"></i> Checkout
          </a>
       </div>

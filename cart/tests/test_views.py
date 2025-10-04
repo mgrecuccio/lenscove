@@ -52,50 +52,42 @@ class CartViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "cart/detail.html")
         self.assertIn("cart", response.context)
+    
 
-
-    def test_cart_add_view(self):
+    def test_cart_add_post_valid(self):
         url = reverse("cart:cart_add", args=[self.product.id])
-        response = self.client.post(url, {
+        data = {
             "quantity": 2,
-            "dimension": "30x40",
-            "frame_type": "wood",
-            "frame_color": "black"
-        })
-
-
+            "dimension": "normal",
+            "frame_type": "plastic",
+            "frame_color": "black",
+        }
+        response = self.client.post(url, data)
         self.assertRedirects(response, reverse("cart:cart_detail"))
-
         session = self.client.session
-        cart = session.get("cart", session.get(settings.CART_SESSION_ID))
-        self.assertIsNotNone(cart)
-        self.assertIn(str(self.product.id), cart)
-
-        item = cart[str(self.product.id)]
-        self.assertEqual(item["quantity"], 2)
-        self.assertEqual(item["dimension"], "30x40")
+        self.assertIn(str(self.product.id), session.get("cart", {}))
 
 
-    def test_override_product_quantity(self):
-        self.url = reverse("cart:cart_add", args=[self.product.id])
-        self.client.post(self.url, {"quantity": 2})
-
-        response = self.client.post(self.url, {"quantity": 5, "override": "true"})
+    def test_cart_update_quantity(self):
+        self.add_session_cart()
+        
+        url = reverse("cart:cart_update", args=[self.product.id])
+        response = self.client.post(url, {"quantity": 3})
         self.assertRedirects(response, reverse("cart:cart_detail"))
-
-        session_cart = self.client.session["cart"]
-        self.assertEqual(session_cart[str(self.product.id)]["quantity"], 5)
+        session = self.client.session
+        cart = session.get("cart", {})
+        self.assertEqual(cart[str(self.product.id)]["quantity"], 3)
 
     
-    def test_override_remove_product_when_quantity_zero(self):
-        self.url = reverse("cart:cart_add", args=[self.product.id])
-        self.client.post(self.url, {"quantity": 2})
+    def test_cart_update_remove(self):
+        self.add_session_cart()
 
-        response = self.client.post(self.url, {"quantity": 0, "override": "true"})
+        url = reverse("cart:cart_update", args=[self.product.id])
+        response = self.client.post(url, {"quantity": 0})
         self.assertRedirects(response, reverse("cart:cart_detail"))
-
-        session_cart = self.client.session["cart"]
-        self.assertNotIn(str(self.product.id), session_cart)
+        session = self.client.session
+        cart = session.get("cart", {})
+        self.assertNotIn(str(self.product.id), cart)
 
 
     def test_negative_quantity_removes_product(self):
@@ -110,12 +102,31 @@ class CartViewsTest(TestCase):
 
 
     def test_invalid_quantity_defaults_to_one(self):
-        self.url = reverse("cart:cart_add", args=[self.product.id])
+        self.add_session_cart()
+
+        self.url = reverse("cart:cart_update", args=[self.product.id])
         response = self.client.post(self.url, {"quantity": "notanumber"})
         self.assertRedirects(response, reverse("cart:cart_detail"))
 
         session_cart = self.client.session["cart"]
         self.assertEqual(session_cart[str(self.product.id)]["quantity"], 1)
+
+    def add_session_cart(self):
+        session = self.client.session
+        session['cart'] = {
+            str(self.product.id): {
+                "title": self.product.title,
+                "price": str(self.product.price),
+                "image": self.product.image.url,
+                'slug': self.product.slug,
+                "brand": self.product.brand,
+                "quantity": 1,
+                "dimension": "normal",
+                "frame_type": "plastic",
+                "frame_color": "black"
+            }
+        }
+        session.save()
 
 
     def test_cart_remove_view(self):

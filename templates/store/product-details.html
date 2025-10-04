@@ -6,75 +6,83 @@
       <hr class="md-md-3">
       <div class="row justify-content-between gx-4">
          <div class="col-12 col-md-5 mb-3">
-               <div class="card shadow-sm mb-3">
-                    <img class="product-img-details mt-2 mt-md-3" src="{{product.image.url}}" alt="Product Image" />
-                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                           <span>Unit price:</span>
-                           <span id="unitPrice" class="fw-bold">{{product.price}}</span>€
-                        </div>
-                     </div>
+            <div class="card shadow-sm mb-3">
+               <img class="product-img-details mt-2 mt-md-3" src="{{product.image.url}}" alt="Product Image" />
+               <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                     <span>Unit price:</span>
+                     <span id="unitPrice" class="fw-bold">{{product.price}} €</span>
+                  </div>
+               </div>
             </div>
          </div>
          <div class="col-12 col-md-5">
             <div class="flex-fill d-flex flex-column">
-               <form id="purchase-form" class="purchase-form mt-md-3" id="purchaseForm" method="POST" action="{% url 'cart:cart_add' product.id %}">
+               <form method="POST" action="{% url 'cart:cart_add' product.id %}">
                   {% csrf_token %}
 
-                  <div class="row image-dimension spacing-between-rows">
-                     <h6 class="text-success-emphasis mb-3">Dimension</h6>
-                     <div class="btn-group" role="group" aria-label="Image Dimension">
-                        {% for item in image_dimensions %}
-                           <input type="radio" class="btn-check" name="dimension" id="img-dimension-{{ forloop.counter }}" value="{{ item.value }}" checked>
-                           <label class="btn btn-outline-dark" for="img-dimension-{{ forloop.counter }}">{{ item.label }}</label>
-                        {% endfor %}
-                     </div>
-                  </div>
-             
-                  <div class="row frame-type spacing-between-rows">
-                     <h6 class="text-success-emphasis">Frame Type:</h6>
-                     <div class="btn-group" role="group" aria-label="Frame Type">
-                        {% for item in frame_types %}
-                           <input type="radio" class="btn-check" name="frame_type" id="img-frame-type-{{ forloop.counter }}" value="{{ item.value }}" checked>
-                           <label class="btn btn-outline-dark" for="img-frame-type-{{ forloop.counter }}">{{ item.label }}</label>
+                  <div class="row frame-color spacing-between-rows">
+                     <h6 class="text-success-emphasis">Dimension:</h6>
+                     <div class="btn-group" role="group" aria-label="Dimension">
+                        {% for value, label in form.dimension.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.dimension.name }}"
+                           id="dimension-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.dimension.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="dimension-{{ forloop.counter }}">{{ label }}</label>
                         {% endfor %}
                      </div>
                   </div>
 
                   <div class="row frame-color spacing-between-rows">
-                     <h6 class="text-success-emphasis">Frame Color:</h6>
-                     <div class="btn-group" role="group" aria-label="Frame Color">
-                        {% for item in frame_colors %}
-                           <input type="radio" class="btn-check" name="frame_color" id="img-frame-color-{{ forloop.counter }}" value="{{ item.value }}" checked>
-                           <label class="btn btn-outline-dark" for="img-frame-color-{{ forloop.counter }}">{{ item.label }}</label>
+                     <h6 class="text-success-emphasis">Frame Type:</h6>
+                     <div class="btn-group" role="group" aria-label="Frame Typeframe_type">
+                        {% for value, label in form.frame_type.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.frame_type.name }}"
+                           id="frame_type-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.frame_type.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="frame_type-{{ forloop.counter }}">{{ label }}</label>
+                        {% endfor %}
+                     </div>
+                  </div>
+
+                  <div class="row frame-color spacing-between-rows">
+                     <h6 class="text-success-emphasis">Frame Type:</h6>
+                     <div class="btn-group" role="group" aria-label="Frame Typeframe_type">
+                        {% for value, label in form.frame_color.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.frame_color.name }}"
+                           id="frame_color-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.frame_color.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="frame_color-{{ forloop.counter }}">{{ label }}</label>
                         {% endfor %}
                      </div>
                   </div>
 
                   <div class="row quantity spacing-between-rows">
                      <h6 class="text-success-emphasis">Quantity:</h6>
-                        <div class="d-flex gap-2 justify-content-center text-success-emphasis">
-                           <button type="button" class="btn btn-outline-secondary" id="decreaseBtn">-</button>
-                           <input type="text" id="quantityInput" class="form-control text-center" value="1" style="width: 60px;" />
-                           <button type="button" class="btn btn-outline-secondary" id="increaseBtn">+</button>
-                        </div>
-                  </div>
-
-                   <div class="row total-price spacing-between-rows justify-content-center">
-                     <div class="col-5 col-md-6">
-                        <h6 class="text-success-emphasis">Total Price: </h6>
-                     <div class="input-group">
-                        <input id="totalPriceInput" readonly type="text" class="form-control" aria-label="Total Price" value="{{ product.price }}">
-                        <span class="input-group-text">€</span>
-                     </div>
+                     <div class="d-flex gap-2 justify-content-center text-success-emphasis">
+                        <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">−</button>
+                        {{ form.quantity }}
+                        <button class="btn btn-outline-secondary" type="button" id="increaseBtn">+</button>
                      </div>
                   </div>
-
-                   <div class="row add-to-cart-button spacing-between-rows">
+               
+                  <div class="row add-to-cart-button spacing-between-rows">
                      <div class="text-center my-4 mb-3">
                         <button class="btn btn-dark btn-lg mt-3 mb-3" type="submit">Add to cart</button>
                      </div>
-                   </div>
+                  </div>
                </form>
             </div>
          </div>
@@ -82,5 +90,5 @@
    </div>
 </section>
 <!-- Product Details -->
-<script src="{% static '/js/product-quantity-selector.js' %}"></script>
+ <script src="{% static 'js/product-quantity-selector.js' %}"></script>
 {% endblock %}

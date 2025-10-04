@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-
+from cart.forms import AddToCartForm
 from . models import Category, Product
-from . models import ImageDimension, FrameType, FrameColor
 
 
 def best_sellers(request):
@@ -35,10 +34,10 @@ def categories(request):
 
 def product_details(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    context = {
-        'image_dimensions': ImageDimension,
-        'frame_types': FrameType,
-        'frame_colors': FrameColor,
-        'product': product
-    }
-    return render(request, 'store/product-details.html', context)
+
+    form = AddToCartForm()
+
+    return render(request, "store/product-details.html", {
+        "product": product,
+        "form": form,
+    })

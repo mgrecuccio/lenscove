@@ -49,6 +49,11 @@ class Cart:
             del self.cart[product_id]
             self.save()
 
+    
+    def contains(self, product):
+        product_id = str(product.id)
+        return product_id in self.cart
+
 
     def __iter__(self):
         product_ids = self.cart.keys()
