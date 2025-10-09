@@ -35,6 +35,7 @@ class CartViewsTest(TestCase):
 
         super().tearDown()
 
+
     def setUp(self):
         self.product = Product.objects.create(
             title="Test Product",
@@ -110,6 +111,7 @@ class CartViewsTest(TestCase):
 
         session_cart = self.client.session["cart"]
         self.assertEqual(session_cart[str(self.product.id)]["quantity"], 1)
+
 
     def add_session_cart(self):
         session = self.client.session
