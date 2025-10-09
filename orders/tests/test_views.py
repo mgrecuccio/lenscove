@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from orders.models import Order, OrderItem
 from store.models import Product
+from unittest.mock import patch
 
 
 class OrderCreateViewsTest(TestCase):
@@ -16,8 +17,9 @@ class OrderCreateViewsTest(TestCase):
             price=10.00
         )
 
-
-    def test_order_create_post(self):
+    
+    @patch("orders.utils.send_order_confirmation_email")
+    def test_order_create_post(self, mock_send_email):
         session = self.client.session
         session["cart"] = {
             str(self.product.id): {
@@ -47,6 +49,7 @@ class OrderCreateViewsTest(TestCase):
         order_item = OrderItem.objects.first()
         self.assertEqual(order_item.quantity, 2)
         self.assertEqual(order_item.product, self.product)
+        mock_send_email.called
 
 
     def test_order_create_get(self):

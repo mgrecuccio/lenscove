@@ -5,6 +5,7 @@ from store.models import Product
 
 class OrderTests(TestCase):
     
+    
     @classmethod
     def setUpTestData(cls):
         Order.objects.create(

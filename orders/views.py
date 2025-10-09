@@ -3,6 +3,7 @@ from django.shortcuts import render
 from .forms import OrderCreateForm
 from .models import OrderItem
 from cart.cart import Cart
+from .utils import send_order_confirmation_email
 
 
 def order_create(request):
@@ -24,6 +25,10 @@ def order_create(request):
                     frame_color=item.get('frame_color', 'black')
             )
             cart.clear()
+
+            send_order_confirmation_email(order)
+            logging.info(f"Order confirmation email sent to {order.email}")
+
             logging.info(f"Order {order.id} created successfully. Cart session cleared.")
             return render(request, 'orders/order_created.html', {"order": order})
     else:

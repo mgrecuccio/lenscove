@@ -17,6 +17,8 @@ class MockRequest:
 
 
 class CartUnitTest(TestCase):
+
+    
     def setUp(self):
         self.request = MockRequest()
         self.product = Product.objects.create(
