@@ -4,12 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from .cart import Cart
 from store.models import Product
-
-logger = logging.getLogger(__name__)
-
-
 from cart.forms import AddToCartForm
 
+logger = logging.getLogger(__name__)
 
 @require_GET
 def cart_detail(request):
@@ -28,7 +25,7 @@ def cart_add(request, product_id):
         logger.info(f"Adding product {product_id} to cart with data: {form.cleaned_data}")
         cd = form.cleaned_data
         quantity=cd["quantity"]
-        dimension=cd["dimension"]
+        dimensions=cd["dimensions"]
         frame_type=cd["frame_type"]
         frame_color=cd["frame_color"]
 
@@ -36,7 +33,7 @@ def cart_add(request, product_id):
             product=product,
             quantity=quantity,
             override_quantity=False,
-            dimension=dimension,
+            dimensions=dimensions,
             frame_type=frame_type,
             frame_color=frame_color,
         )

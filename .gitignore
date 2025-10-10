@@ -6,3 +6,4 @@ static/.DS_Store
 config/__pycache__/
 .DS_Store
 tmp/emails/
+static/media/invoices/

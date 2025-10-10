@@ -1,7 +1,9 @@
-from . import logging
+import logging
 from decimal import Decimal
 from django.conf import settings
 from store.models import Product
+
+logger = logging.getLogger(__name__)
 
 class Cart:
     def __init__(self, request):
@@ -13,17 +15,17 @@ class Cart:
         self.cart = cart
 
     
-    def add(self, product, quantity=1, override_quantity=False, dimension=None, frame_type=None, frame_color=None):
+    def add(self, product, quantity=1, override_quantity=False, dimensions=None, frame_type=None, frame_color=None):
         product_id = str(product.id)
         if product_id not in self.cart:
             self.cart[product_id] = {
                 'quantity': 0,
                 'price': str(product.price),
-                'dimension': dimension,
+                'dimensions': dimensions,
                 'frame_type': frame_type,
                 'frame_color': frame_color,
             }
-            logging.info(f"Product {product_id} added to cart")
+            logger.info(f"Product {product_id} added to cart")
 
         if override_quantity:
             self.cart[product_id]['quantity'] = quantity
@@ -31,8 +33,8 @@ class Cart:
             self.cart[product_id]['quantity'] += quantity
 
         # update options if provided
-        if dimension:
-            self.cart[product_id]['dimension'] = dimension
+        if dimensions:
+            self.cart[product_id]['dimensions'] = self.dimensions_label(dimensions)
         if frame_type:
             self.cart[product_id]['frame_type'] = frame_type
         if frame_color:
@@ -50,7 +52,7 @@ class Cart:
         if product_id in self.cart:
             del self.cart[product_id]
             self.save()
-            logging.info(f"Product {product_id} removed from cart")
+            logger.info(f"Product {product_id} removed from cart")
 
     
     def contains(self, product):
@@ -83,3 +85,12 @@ class Cart:
     def clear(self):
         self.session[settings.CART_SESSION_ID] = {}
         self.save()
+
+
+    def dimensions_label(self, dimensions):
+        mapping = {
+            'normal': '10x15',
+            'medium': '13x18',
+            'large': '20x30',
+        }
+        return mapping.get((dimensions or '').lower(), dimensions or '')

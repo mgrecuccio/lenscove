@@ -59,7 +59,7 @@ class CartViewsTest(TestCase):
         url = reverse("cart:cart_add", args=[self.product.id])
         data = {
             "quantity": 2,
-            "dimension": "normal",
+            "dimensions": "normal",
             "frame_type": "plastic",
             "frame_color": "black",
         }
@@ -123,7 +123,7 @@ class CartViewsTest(TestCase):
                 'slug': self.product.slug,
                 "brand": self.product.brand,
                 "quantity": 1,
-                "dimension": "normal",
+                "dimensions": "normal",
                 "frame_type": "plastic",
                 "frame_color": "black"
             }

@@ -1,7 +1,6 @@
 from django.db import models
 from store.models import Product
 
-
 class Order(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -12,6 +11,8 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
+
+    invoice_pdf = models.FileField(upload_to='invoices/', blank=True, null=True)
 
 
     class Meta:
@@ -28,12 +29,19 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+
+    DIMENSION_CHOICES = [
+        ('normal', '10x15'),
+        ('medium', '13x18'),
+        ('large', '20x30'),
+    ]
+
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
-    dimensions = models.CharField(max_length=50, blank=True, null=True)
+    dimensions = models.CharField(max_length=50, choices=DIMENSION_CHOICES, blank=True, null=True)
     frame_color = models.CharField(max_length=30, blank=True, null=True)
     frame_type = models.CharField(max_length=30, blank=True, null=True)
 

@@ -22,17 +22,17 @@
                   {% csrf_token %}
 
                   <div class="row frame-color spacing-between-rows">
-                     <h6 class="text-success-emphasis">Dimension:</h6>
+                     <h6 class="text-success-emphasis">Dimensions:</h6>
                      <div class="btn-group" role="group" aria-label="Dimension">
-                        {% for value, label in form.dimension.field.choices %}
+                        {% for value, label in form.dimensions.field.choices %}
                         <input type="radio"
                            class="btn-check"
-                           name="{{ form.dimension.name }}"
-                           id="dimension-{{ forloop.counter }}"
+                           name="{{ form.dimensions.name }}"
+                           id="dimensions-{{ forloop.counter }}"
                            value="{{ value }}"
                            autocomplete="off"
-                           {% if form.dimension.value == value %}checked{% endif %}>
-                           <label class="btn btn-outline-dark" for="dimension-{{ forloop.counter }}">{{ label }}</label>
+                           {% if form.dimensions.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="dimensions-{{ forloop.counter }}">{{ label }}</label>
                         {% endfor %}
                      </div>
                   </div>

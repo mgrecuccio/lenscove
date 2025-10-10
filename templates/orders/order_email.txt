@@ -4,7 +4,7 @@ Your order #{{ order.id }} has been placed successfully.
 
 Order Summary:
 {% for item in order.items.all %}
-- {{ item.product.title }} ({{ item.dimension }}, {{ item.frame_type }}, {{ item.frame_color }})
+- {{ item.product.title }} ({{ item.dimensions }}, {{ item.frame_type }}, {{ item.frame_color }})
   Qty: {{ item.quantity }} x {{ item.price }} € = {{ item.get_cost }} €
 {% endfor %}
 
