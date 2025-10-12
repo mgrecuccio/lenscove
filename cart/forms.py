@@ -1,7 +1,7 @@
 from django import forms
 
 class AddToCartForm(forms.Form):
-    dimension = forms.ChoiceField(
+    dimensions = forms.ChoiceField(
         initial='normal',
         choices=[('normal', '10x15'), ('medium', '13x18'), ('large', '20x30')],
         widget=forms.RadioSelect

@@ -37,9 +37,9 @@
                 <tr>
                   <td class="fw-medium">{{ item.product.title }}</td>
                   <td>
-                    {% if item.dimension %}<span class="badge bg-secondary me-1">Size: {{ item.dimension }}</span>{% endif %}
-                    {% if item.frame_type %}<span class="badge bg-secondary me-1">Frame: {{ item.frame_type }}</span>{% endif %}
-                    {% if item.frame_color %}<span class="badge bg-secondary">Color: {{ item.frame_color }}</span>{% endif %}
+                    {% if item.dimensions %}<span class="badge bg-secondary me-1 text-white">Size: {{ item.dimensions }}</span>{% endif %}
+                    {% if item.frame_type %}<span class="badge bg-secondary me-1 text-white">Frame: {{ item.frame_type }}</span>{% endif %}
+                    {% if item.frame_color %}<span class="badge bg-secondary text-white">Color: {{ item.frame_color }}</span>{% endif %}
                   </td>
                   <td class="text-center">{{ item.quantity }}</td>
                   <td class="text-end">{{ item.price }} €</td>
@@ -66,13 +66,16 @@
             <li><i class="fa-solid fa-envelope me-2 text-muted"></i> {{ order.email }}</li>
           </ul>
         </div>
+        <div class="card-footer text-center">
+          <a href="{% url 'orders:order_invoice' order.id %}" class="btn btn-primary">
+            <i class="fa-solid fa-file-invoice me-2"></i> Download Invoice (PDF)
+          </a>
       </div>
       <div class="text-center py-3">
         <a href="{% url 'store' %}" class="btn btn-outline-secondary btn-lg">
           <i class="fa-solid fa-arrow-left me-2"></i> Continue Shopping
         </a>
       </div>
-
     {% else %}
       <div class="text-center py-3">
         <div class="alert alert-danger shadow-sm" role="alert">

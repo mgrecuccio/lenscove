@@ -17,8 +17,10 @@ def send_order_confirmation_email(order):
     )
     msg.attach_alternative(html_message, "text/html")
 
+    if order.invoice_pdf:
+        msg.attach_file(order.invoice_pdf.path)
+
     pdf_buffer = generate_invoice(order)
     pdf_buffer.seek(0)
-    msg.attach(f"invoice_{order.id}.pdf", pdf_buffer.read(), "application/pdf")
 
     msg.send()

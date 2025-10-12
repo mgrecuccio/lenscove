@@ -140,4 +140,12 @@ EMAIL_FILE_PATH = "tmp/emails"
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'marco.grecuccio@mgrtech.eu'
 # EMAIL_HOST_PASSWORD = 'yourpassword'
-# DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech .eu>'
+# DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech.eu>'
+
+# Invoice settings
+SHOP_NAME = "LensCove Shop"
+SHOP_ADDRESS = "123 Creative Street, Brussels, Belgium"
+SHOP_EMAIL = "support@lenscove.com"
+SHOP_VAT = "BE123456789"
+SHOP_LOGO = "static/img/logo.png"
+SHOP_PHONE = "+32 2 123 45 67"
