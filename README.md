@@ -21,6 +21,7 @@ LensCove is a Django web application for browsing, ordering and customizing fine
 - Product detail — view image, choose dimensions / frame options and add to cart
 - Cart — review items, update quantity, remove items
 - Checkout (Order Create) — enter shipping / contact info and place order
+- Online payment — make payment with Mollie
 - Order created / confirmation — order summary, invoice download
 - Admin — manage products, categories, orders
 
@@ -36,6 +37,7 @@ LensCove is a Django web application for browsing, ordering and customizing fine
   - Quantity selector with client-side controls.
 - Cart with add / update / remove behavior.
 - Checkout creates Order and OrderItem records, stores chosen options on items.
+- Pay the invoice with Mollie.
 - Email notifications:
   - Sends multipart email (plain text + HTML) to customer.
   - Attaches generated PDF invoice.
@@ -50,6 +52,7 @@ LensCove is a Django web application for browsing, ordering and customizing fine
 - store/ — product and category models, gallery and product views
 - cart/ — cart logic, add/update/remove views, forms
 - orders/ — order models, forms, views, invoice generator and email utils
+- payments/ — create a Mollie payment linked to the orders, redirect the customer to Mollie’s hosted checkout and handle Mollie’s webhook and update the order’s status
 - templates/ — HTML and email templates (text + HTML)
 - static/ — CSS/JS/assets
 - config/ — project settings / URLs
@@ -135,6 +138,54 @@ LensCove is a Django web application for browsing, ordering and customizing fine
   - Patch `orders.utils.generate_invoice` (or `orders.invoice.generate_invoice`) with `unittest.mock.patch` to avoid creating real PDF files in tests and assert it was called.
   - Example assert: `mock_generate.assert_called_once_with(order)`.
   - To assert `send_order_confirmation_email` is called from the view, patch `orders.utils.send_order_confirmation_email` in tests.
+
+---
+
+## Payments Gateway setup
+
+
+### 1. Create a Mollie free account
+
+1. Sign up for a Mollie account (https://www.mollie.com). Use the Dashboard to create a free test account.
+2. In the Mollie Dashboard switch to "Test mode" and obtain your **Test API key** (starts with `test_...`).
+3. In your local project, set the key in settings or environment variables:
+   - Example (config/settings.py or env):
+     - MOLLIE_API_KEY = "test_your_key_here"
+     - MOLLIE_PROFILE_ID = "your_profile_id"  # optional
+4. Configure redirect and webhook URLs in the Mollie dashboard (you can use ngrok during development — see below).
+5. Use the test API key when running payments in development. Validate webhooks and redirect URLs with Mollie's test transactions.
+
+Security note: never commit production API keys. Use environment variables or a secrets manager for production.
+
+### 2. Setup ngrok to test in dev / local environment
+
+1. Install ngrok:
+   - macOS (Homebrew): `brew install --cask ngrok` or download from https://ngrok.com
+2. Start your Django dev server:
+   - `python manage.py runserver 8000`
+3. Start ngrok to expose the local server:
+   - `ngrok http 8000`
+4. Copy the forward URL shown by ngrok (e.g. `https://abcd1234.ngrok.io`) and use it to configure external services:
+   - Set Mollie redirect URL: `https://<ngrok-id>.ngrok.io/payments/return/`
+   - Set Mollie webhook URL: `https://<ngrok-id>.ngrok.io/payments/webhook/`
+   - Example settings override (use env vars in real setup):
+     - MOLLIE_REDIRECT_URL = "https://abcd1234.ngrok.io/payments/return/"
+     - MOLLIE_WEBHOOK_URL = "https://abcd1234.ngrok.io/payments/webhook/"
+6. In general settings.py, add the ngrok URLs to the ALLOWED_HOSTS list:
+
+   ```
+   ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.ngrok-free.dev',
+   ]
+   ```
+5. Notes:
+   - Ensure your dev server is reachable on the same port you expose with ngrok.
+   - If DEBUG = False, add the ngrok host to ALLOWED_HOSTS.
+   - Use Mollie test API keys while testing; switch to live keys for production.
+
+You can now test payment flows and webhook handling locally using the public ngrok URL. Fill in any project-specific webhook paths and environment variables as needed.
 
 ---
 

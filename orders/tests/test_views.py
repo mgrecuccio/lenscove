@@ -18,9 +18,7 @@ class OrderCreateViewsTest(TestCase):
         )
 
     
-    @patch("orders.utils.send_order_confirmation_email")
-    @patch("orders.invoice.generate_invoice")
-    def test_order_create_post(self, mock_send_email, mock_generate_invoice):
+    def test_order_create_post(self):
         session = self.client.session
         session["cart"] = {
             str(self.product.id): {
@@ -42,16 +40,13 @@ class OrderCreateViewsTest(TestCase):
             "city": "TestCity",
         })
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "orders/order_created.html")
+        self.assertEqual(response.status_code, 302)
 
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(OrderItem.objects.count(), 1)
         order_item = OrderItem.objects.first()
         self.assertEqual(order_item.quantity, 2)
         self.assertEqual(order_item.product, self.product)
-        mock_send_email.called
-        mock_generate_invoice.called
 
 
     def test_order_create_get(self):

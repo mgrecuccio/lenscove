@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from store.models import Product
 
@@ -11,8 +12,13 @@ class Order(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
-
     invoice_pdf = models.FileField(upload_to='invoices/', blank=True, null=True)
+
+
+    def mark_paid(self):
+        self.paid = True
+        self.updated = timezone.now()
+        self.save(update_fields=['paid', 'updated'])
 
 
     class Meta:

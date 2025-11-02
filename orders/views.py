@@ -1,11 +1,9 @@
 import logging
-from django.core.files.base import ContentFile
 from django.http import Http404, FileResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from .forms import OrderCreateForm
 from .models import Order, OrderItem
 from cart.cart import Cart
-from .utils import send_order_confirmation_email
 from .invoice import generate_invoice
 
 logger = logging.getLogger(__name__)
@@ -29,19 +27,7 @@ def order_create(request):
                     frame_color=item.get('frame_color', 'black')
             )
             cart.clear()
-
-            pdf_buffer = generate_invoice(order)
-            order.invoice_pdf.save(
-                f"invoice_{order.id}.pdf",
-                ContentFile(pdf_buffer.read()),
-                save=True
-            )
-
-            send_order_confirmation_email(order)
-
-            logger.info(f"Order confirmation email sent to {order.email}")
-            logger.info(f"Order {order.id} created successfully. Cart session cleared.")
-            return render(request, 'orders/order_created.html', {"order": order})
+            return redirect("payments:create_payment", order_id=order.id)
     else:
         form = OrderCreateForm()
 

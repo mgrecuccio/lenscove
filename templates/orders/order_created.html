@@ -14,6 +14,13 @@
           </h4>
           <p class="mb-0">Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
         </div>
+        {% if payment_success %}
+          <div class="alert alert-success alert-dismissible fade show shadow-sm mt-3" role="alert">
+            <i class="fa-solid fa-credit-card me-2"></i>
+            <strong>Payment received!</strong> Your transaction was completed successfully.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endif %}
       </div>
       
       <div class="card shadow-sm mb-4">

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'store',
     'cart',
     'orders',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -104,6 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.ngrok-free.dev',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -149,3 +155,9 @@ SHOP_EMAIL = "support@lenscove.com"
 SHOP_VAT = "BE123456789"
 SHOP_LOGO = "static/img/logo.png"
 SHOP_PHONE = "+32 2 123 45 67"
+
+# Mollie settings
+MOLLIE_API_KEY = "test_KcTR2r6NWxuDcuy6UwDAbjqP56p3Uy"
+MOLLIE_REDIRECT_URL = "http://localhost:8000/payment/return/"
+MOLLIE_WEBHOOK_URL = "https://overdestructive-wolfishly-jensen.ngrok-free.dev/payment/webhook/"
+MOLLIE_PROFILE_ID = "pfl_ZfiWuF5zKv"
