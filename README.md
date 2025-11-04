@@ -41,6 +41,7 @@ LensCove is a Django web application for browsing, ordering and customizing fine
 - Email notifications:
   - Sends multipart email (plain text + HTML) to customer.
   - Attaches generated PDF invoice.
+- Create label and track packages with Shippo
 - PDF invoice generation using ReportLab.
 - Unit tests for views, utilities and invoice generation.
 - Bootstrap-based UI (Cerulean theme recommended).
@@ -52,7 +53,8 @@ LensCove is a Django web application for browsing, ordering and customizing fine
 - store/ — product and category models, gallery and product views
 - cart/ — cart logic, add/update/remove views, forms
 - orders/ — order models, forms, views, invoice generator and email utils
-- payments/ — create a Mollie payment linked to the orders, redirect the customer to Mollie’s hosted checkout and handle Mollie’s webhook and update the order’s status
+- payments/ — payments business logic integration with Mollie
+- shipping/ — packages tracking and labels creation with Shippo
 - templates/ — HTML and email templates (text + HTML)
 - static/ — CSS/JS/assets
 - config/ — project settings / URLs
@@ -187,6 +189,86 @@ Security note: never commit production API keys. Use environment variables or a 
 
 You can now test payment flows and webhook handling locally using the public ngrok URL. Fill in any project-specific webhook paths and environment variables as needed.
 
+
+---
+
+## Shipment Provider setup
+
+### 1. Shipment integration (Shippo)
+
+We added a `shipment` app that integrates with Shippo (https://goshippo.com) to create labels and receive tracking updates.
+
+What Shippo does
+- Shippo is a shipping API / aggregator that creates carrier labels, tracks shipments and posts webhook events for status updates.
+- We use the official Shippo Python SDK to create shipments/labels and to receive tracking events.
+
+Requirements
+- A Shippo account is required (https://goshippo.com). Create a free test account for development.
+- In test/sandbox mode you can generate as many test labels as you need without billing.
+
+Configuration
+- Generate a Shippo test API key in the Shippo dashboard and add it to your Django settings or environment:
+```python
+# config/settings.py
+SHIPPO_API_KEY = "shippo_test_XXXX"
+# optional: set webhook URL, or generate it dynamically in code
+SHIPPO_WEBHOOK_URL = "https://your-ngrok-id.ngrok.io/shipping/webhook/"
+```
+- Do NOT commit API keys. Use environment variables or a .env file for secrets.
+
+### 2. Webhooks
+- Create a webhook in Shippo at: https://portal.goshippo.com/api-config/webhooks (use your ngrok public URL in dev).
+- Shippo will POST JSON payloads to your webhook endpoint when tracking updates occur.
+- Use ngrok to expose your local server and configure Shippo to call the ngrok URL:
+  1. Run Django dev server: `python manage.py runserver 8000`
+  2. Start ngrok: `ngrok http 8000`
+  3. Copy ngrok forwarding URL and set it in Shippo webhook config (or set SHIPPO_WEBHOOK_URL in settings)
+
+#### Testing / Sandbox notes
+- Shippo sandbox uses special test tracking tokens instead of real carrier numbers. Example tokens:
+  - `SHIPPO_TRANSIT` → simulates "in transit"
+  - `SHIPPO_DELIVERED` → simulates "delivered"
+  - `SHIPPO_RETURNED` → simulates "returned"
+  - `SHIPPO_FAILURE` → simulates "failed delivery"
+
+Why tokens are used
+- In sandbox mode Shippo does not call real carriers. Those tokens instruct the sandbox to simulate the corresponding lifecycle and trigger predictable webhook events.
+
+Manual webhook payload (example)
+- You can simulate a Shippo tracking event locally with curl:
+
+```bash
+curl -X POST http://127.0.0.1:8000/shipping/webhook/ \
+  -H "Content-Type: application/json" \
+  -d '{
+        "event": "track_updated",
+        "data": {
+          "tracking_number": "SHIPPO_DELIVERED",
+          "tracking_status": {"status": "DELIVERED"}
+        }
+      }'
+```
+
+Notes on test tracking numbers
+- `SHIPPO_DELIVERED` is not a real carrier code; it is a Shippo sandbox token that causes Shippo to send a "DELIVERED" webhook.
+- Your Django DB should store whatever Shippo sends (fake or real), and your webhook processing must match on that stored value.
+
+Utility for tests / local simulation
+- To avoid "Shipment not found" when testing webhook callbacks, use the provided management helper to create a local test shipment that matches the Shippo token:
+
+```bash
+python manage.py create_test_shippo_shipment SHIPPO_DELIVERED
+```
+
+This creates a shipment record in the DB that the webhook handler can find and update when Shippo posts the test event.
+
+### 3. Tips and troubleshooting
+- Add your ngrok host to `ALLOWED_HOSTS` or set `DEBUG = True` in development.
+- Inspect incoming requests with the ngrok web UI: http://127.0.0.1:4040
+- Log incoming webhook payloads to see what Shippo sends; webhook bodies are JSON.
+- Use sandbox API keys for development and switch to live keys in production.
+- If you get "Shipment not found", confirm the tracking number in the webhook matches a DB record (or use the `create_test_shippo_shipment` helper).
+
 ---
 
 ## Tips & gotchas
@@ -201,8 +283,3 @@ You can now test payment flows and webhook handling locally using the public ngr
   ```
 
 ---
-
-If you want, I can:
-- Add the `.vscode/settings.json` file for test discovery.
-- Add example env/sample settings for email.
-- Generate a more detailed contributor/deployment section.
