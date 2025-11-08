@@ -1,7 +1,7 @@
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from orders.models import Order
-from shipping.services import create_shippo_label
+from shipping.services import ShippingService
 
 
 class CreateShippoLabelTests(TestCase):
@@ -41,7 +41,7 @@ class CreateShippoLabelTests(TestCase):
         fake_response.content = b"%PDF-1.4\n%Fake PDF\n"
         mock_requests_get.return_value = fake_response
 
-        result = create_shippo_label(self.order)
+        result = ShippingService.create_shippo_label(self.order)
 
         self.assertIsInstance(result, dict)
         self.assertEqual(result['shippo_id'], 'TRANS_123')
@@ -73,6 +73,6 @@ class CreateShippoLabelTests(TestCase):
         mock_shippo_sdk.transactions.create.return_value = fake_transaction
 
         with self.assertRaises(Exception) as ctx:
-            create_shippo_label(self.order)
+            ShippingService.create_shippo_label(self.order)
 
         self.assertIn('Shippo label creation failed', str(ctx.exception))

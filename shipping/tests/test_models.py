@@ -2,7 +2,6 @@ from django.test import TestCase
 from django.core.files.base import ContentFile
 from orders.models import Order
 from shipping.models import Shipment
-from decimal import Decimal
 import time
 
 

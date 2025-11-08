@@ -4,7 +4,7 @@ from django.urls import path
 from django.utils.html import format_html
 from .models import Order, OrderItem
 from shipping.models import Shipment
-from .invoice import generate_invoice
+from .invoice_service import generate_invoice
 
 
 class OrderItemInline(admin.TabularInline):

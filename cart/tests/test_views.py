@@ -1,11 +1,13 @@
 import io
 import os
+from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from store.models import Product
 from django.conf import settings
+
 
 def get_test_image():
     image = Image.new('RGB', (100, 100), color='blue')
@@ -18,8 +20,9 @@ def get_test_image():
         content_type='image/png'
     )
 
+
 class CartViewsTest(TestCase):
-    
+
     def tearDown(self):
         media_root = settings.MEDIA_ROOT
         images_dir = os.path.join(media_root, 'images')
@@ -35,7 +38,6 @@ class CartViewsTest(TestCase):
 
         super().tearDown()
 
-
     def setUp(self):
         self.product = Product.objects.create(
             title="Test Product",
@@ -45,7 +47,6 @@ class CartViewsTest(TestCase):
             image=get_test_image()
         )
 
-
     def test_cart_detail_view(self):
         url = reverse("cart:cart_detail")
         response = self.client.get(url)
@@ -53,9 +54,10 @@ class CartViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "cart/detail.html")
         self.assertIn("cart", response.context)
-    
 
-    def test_cart_add_post_valid(self):
+
+    @patch("cart.views.CartService.add_product_to_cart")
+    def test_cart_add_post_valid(self, mock_add_product_to_cart):
         url = reverse("cart:cart_add", args=[self.product.id])
         data = {
             "quantity": 2,
@@ -64,53 +66,32 @@ class CartViewsTest(TestCase):
             "frame_color": "black",
         }
         response = self.client.post(url, data)
+
         self.assertRedirects(response, reverse("cart:cart_detail"))
-        session = self.client.session
-        self.assertIn(str(self.product.id), session.get("cart", {}))
+
+        mock_add_product_to_cart.assert_called_once()
+        kwargs = mock_add_product_to_cart.call_args.kwargs
+        self.assertEqual(kwargs["quantity"], 2)
+        self.assertFalse(kwargs["override_quantity"])
+        self.assertEqual(kwargs["dimensions"], "normal")
+        self.assertEqual(kwargs["frame_type"], "plastic")
+        self.assertEqual(kwargs["frame_color"], "black")
+        self.assertEqual(kwargs["product"].id, self.product.id)
+        self.assertIsNotNone(kwargs["cart"])
 
 
-    def test_cart_update_quantity(self):
+    @patch("cart.views.CartService.update_cart_quantity")
+    def test_cart_update_quantity_calls_service_with_value(self, mock_update):
         self.add_session_cart()
-        
+
         url = reverse("cart:cart_update", args=[self.product.id])
         response = self.client.post(url, {"quantity": 3})
+
         self.assertRedirects(response, reverse("cart:cart_detail"))
-        session = self.client.session
-        cart = session.get("cart", {})
-        self.assertEqual(cart[str(self.product.id)]["quantity"], 3)
-
-    
-    def test_cart_update_remove(self):
-        self.add_session_cart()
-
-        url = reverse("cart:cart_update", args=[self.product.id])
-        response = self.client.post(url, {"quantity": 0})
-        self.assertRedirects(response, reverse("cart:cart_detail"))
-        session = self.client.session
-        cart = session.get("cart", {})
-        self.assertNotIn(str(self.product.id), cart)
-
-
-    def test_negative_quantity_removes_product(self):
-        self.url = reverse("cart:cart_add", args=[self.product.id])
-        self.client.post(self.url, {"quantity": 1})
-
-        response = self.client.post(self.url, {"quantity": -1})
-        self.assertRedirects(response, reverse("cart:cart_detail"))
-
-        session_cart = self.client.session["cart"]
-        self.assertNotIn(str(self.product.id), session_cart)
-
-
-    def test_invalid_quantity_defaults_to_one(self):
-        self.add_session_cart()
-
-        self.url = reverse("cart:cart_update", args=[self.product.id])
-        response = self.client.post(self.url, {"quantity": "notanumber"})
-        self.assertRedirects(response, reverse("cart:cart_detail"))
-
-        session_cart = self.client.session["cart"]
-        self.assertEqual(session_cart[str(self.product.id)]["quantity"], 1)
+        mock_update.assert_called_once()
+        args, kwargs = mock_update.call_args
+        self.assertEqual(args[1].id, self.product.id)
+        self.assertEqual(args[2], "3")
 
 
     def add_session_cart(self):
@@ -131,9 +112,45 @@ class CartViewsTest(TestCase):
         session.save()
 
 
+    @patch("cart.views.CartService.update_cart_quantity")
+    def test_cart_update_when_product_not_in_cart_does_not_call_service(self, mock_update):
+        url = reverse("cart:cart_update", args=[self.product.id])
+        response = self.client.post(url, {"quantity": 2})
+
+        self.assertRedirects(response, reverse("cart:cart_detail"))
+        mock_update.assert_not_called()
+
+
+    @patch("cart.views.CartService.update_cart_quantity")
+    def test_cart_update_remove_zero_calls_service(self, mock_update):
+        self.add_session_cart()
+        url = reverse("cart:cart_update", args=[self.product.id])
+        response = self.client.post(url, {"quantity": 0})
+
+        self.assertRedirects(response, reverse("cart:cart_detail"))
+        mock_update.assert_called_once()
+
+
+    @patch("cart.views.CartService.update_cart_quantity")
+    def test_cart_update_invalid_quantity_still_calls_service_with_raw_value(self, mock_update):
+        self.add_session_cart()
+        url = reverse("cart:cart_update", args=[self.product.id])
+        response = self.client.post(url, {"quantity": "notanumber"})
+
+        self.assertRedirects(response, reverse("cart:cart_detail"))
+        args, kwargs = mock_update.call_args
+        self.assertEqual(args[2], "notanumber")
+
+    
     def test_cart_remove_view(self):
         add_url = reverse("cart:cart_add", args=[self.product.id])
-        self.client.post(add_url, {"quantity": 1})
+
+        self.client.post(add_url, {
+            "quantity": 1,
+            "dimensions": "normal",
+            "frame_type": "plastic",
+            "frame_color": "black",
+        })
 
         remove_url = reverse("cart:cart_remove", args=[self.product.id])
         response = self.client.post(remove_url)

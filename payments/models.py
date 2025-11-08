@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from orders.models import Order
+from django.db import transaction
 
 
 class Payment(models.Model):
@@ -21,7 +22,8 @@ class Payment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-
+    
+    @transaction.atomic
     def mark_paid(self):
         self.status = "paid"
         self.updated = timezone.now()
@@ -30,6 +32,7 @@ class Payment(models.Model):
         self.order.save(update_fields=['paid'])
 
 
+    @transaction.atomic
     def mark_failed(self, status):
         self.status = status
         self.save(update_fields=["status"])

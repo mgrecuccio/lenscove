@@ -2,13 +2,12 @@ import io
 import os
 from django.conf import settings
 from django.test import TestCase, RequestFactory
-from django.http import Http404
 from unittest.mock import patch
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from cart.forms import AddToCartForm
-from store.views import categories, product_details
+from store.views import categories
 from store.models import Product, Category
 
 def get_test_image():
@@ -95,24 +94,36 @@ class StoreViewsTestCase(TestCase):
         )
 
 
-    def test_categories_view(self):
+    @patch('store.services.StoreService.get_active_categories')
+    def test_categories_view(self, mock_get_categories):
+        mock_get_categories.return_value = Category.objects.all()
         request = self.factory.get('/categories/')
         response_data = categories(request)
+        
+        mock_get_categories.assert_called_once()
         self.assertIn(self.category, response_data['all_categories'])
         self.assertEqual(len(response_data['all_categories']), 2)
 
 
-    def test_best_sellers_view(self):
+    @patch('store.services.StoreService.get_best_sellers')
+    def test_best_sellers_view(self, mock_get_best_sellers):
+        best_sellers = [self.product1, self.product2, self.product3, self.product4]
+        mock_get_best_sellers.return_value = best_sellers
+        
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'store/store.html')
         self.assertEqual(response.status_code, 200)
+        
+        mock_get_best_sellers.assert_called_once()
         context = response.context
         self.assertIn('best_sellers', context)
-        self.assertEqual(len(context['best_sellers']), 4)
-        self.assertEqual(list(context['best_sellers']), [self.product1, self.product2, self.product3, self.product4])
+        self.assertEqual(list(context['best_sellers']), best_sellers)
 
 
-    def test_gallery_with_categories(self):
+    @patch('store.services.StoreService.get_active_categories')
+    def test_gallery_with_categories(self, mock_get_categories):
+        mock_get_categories.return_value = Category.objects.all()
+        
         response = self.client.get(reverse('gallery'))
         self.assertEqual(response.status_code, 200)
 
@@ -121,34 +132,34 @@ class StoreViewsTestCase(TestCase):
         self.assertContains(response, f'#{self.category.name}')
 
 
-    def test_filter_products_by_category(self):
+    @patch('store.services.StoreService.get_products_by_category')
+    def test_filter_products_by_category(self, mock_get_products):
+        mock_get_products.return_value = Product.objects.filter(category=self.category2)
+        
         url = reverse('gallery_by_category', kwargs={'slug': self.category2.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+        mock_get_products.assert_called_once_with(self.category2.slug)
         self.assertContains(response, self.product5.title, count=1)
         self.assertNotContains(response, self.product2.title)
         self.assertNotContains(response, self.product3.title)
         self.assertNotContains(response, self.product4.title)
-        self.assertNotContains(response, self.product4.title)
 
-    
-    @patch('django.shortcuts.get_object_or_404')
-    def test_product_details_view(self, mock_get):
-        mock_get.return_value = self.product1
+
+    def test_product_details_view(self):        
         response = self.client.get('/product/product-1/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'store/product-details.html')
 
         self.assertEqual(response.context['product'], self.product1)
-        self.assertIsNotNone(response.context['form'], "Form should be in context")
-        self.assertTrue(response.context['form'].fields, "Form should have fields")
-        self.assertEqual(type(response.context['form']), AddToCartForm)
+        self.assertIsInstance(response.context['form'], AddToCartForm)
+        self.assertTrue(response.context['form'].fields)
 
 
-    @patch('django.shortcuts.get_object_or_404')
-    def test_product_details_not_found(self, mock_get):
-        mock_get.side_effect = Http404("No Product matches the given query.")
-        request = self.factory.get('/product/non-existent/')
-        with self.assertRaises(Http404):
-            product_details(request, slug='non-existent')
+    @patch('store.services.StoreService.get_product_by_slug')
+    def test_product_details_not_found(self, mock_get_product):
+        mock_get_product.return_value = None
+        
+        response = self.client.get('/product/non-existent/')
+        self.assertEqual(response.status_code, 404)
