@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 from django.utils.html import format_html
 from .models import Order, OrderItem
+from shipping.models import Shipment
 from .invoice import generate_invoice
 
 
@@ -11,11 +12,25 @@ class OrderItemInline(admin.TabularInline):
     raw_id_fields = ['product']
 
 
+class ShipmentInline(admin.StackedInline):
+    model = Shipment
+    can_delete = False
+    readonly_fields = (
+        "status",
+        "tracking_number",
+        "tracking_url",
+        "label_pdf",
+        "created",
+        "updated",
+    )
+    extra = 0
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email', 'paid', 'created', 'invoice_link']
     list_filter = ['paid', 'created', 'updated']
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline, ShipmentInline]
 
 
     def invoice_link(self, obj):

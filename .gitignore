@@ -7,3 +7,5 @@ config/__pycache__/
 .DS_Store
 tmp/emails/
 static/media/invoices/
+static/media/shipping_labels/
+.env

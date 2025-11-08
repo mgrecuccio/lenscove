@@ -11,16 +11,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv(BASE_DIR / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&o_sv)rsu48&pv8xfz)*q&0^y)rn6@qrx_+)-ewg43&5yj)@0b'
+SECRET_KEY = os.getenv("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'cart',
     'orders',
     'payments',
+    'shipping',
 ]
 
 MIDDLEWARE = [
@@ -148,16 +151,19 @@ EMAIL_FILE_PATH = "tmp/emails"
 # EMAIL_HOST_PASSWORD = 'yourpassword'
 # DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech.eu>'
 
-# Invoice settings
-SHOP_NAME = "LensCove Shop"
-SHOP_ADDRESS = "123 Creative Street, Brussels, Belgium"
-SHOP_EMAIL = "support@lenscove.com"
-SHOP_VAT = "BE123456789"
-SHOP_LOGO = "static/img/logo.png"
-SHOP_PHONE = "+32 2 123 45 67"
+# Invoice settings (now read from env with sensible defaults)
+SHOP_NAME = os.getenv("SHOP_NAME", "LensCove Shop")
+SHOP_ADDRESS = os.getenv("SHOP_ADDRESS", "123 Creative Street, Brussels, Belgium")
+SHOP_EMAIL = os.getenv("SHOP_EMAIL", "support@lenscove.com")
+SHOP_VAT = os.getenv("SHOP_VAT", "BE123456789")
+SHOP_LOGO = os.getenv("SHOP_LOGO", "static/img/logo.png")
+SHOP_PHONE = os.getenv("SHOP_PHONE", "+32 2 123 45 67")
 
 # Mollie settings
-MOLLIE_API_KEY = "test_KcTR2r6NWxuDcuy6UwDAbjqP56p3Uy"
-MOLLIE_REDIRECT_URL = "http://localhost:8000/payment/return/"
-MOLLIE_WEBHOOK_URL = "https://overdestructive-wolfishly-jensen.ngrok-free.dev/payment/webhook/"
-MOLLIE_PROFILE_ID = "pfl_ZfiWuF5zKv"
+MOLLIE_API_KEY = os.getenv("MOLLIE_API_KEY", "")
+MOLLIE_REDIRECT_URL = os.getenv("MOLLIE_REDIRECT_URL", "http://localhost:8000/payment/return/")
+MOLLIE_WEBHOOK_URL = os.getenv("MOLLIE_WEBHOOK_URL", "")
+MOLLIE_PROFILE_ID = os.getenv("MOLLIE_PROFILE_ID", "")
+
+# Shippo settings
+SHIPPO_API_KEY = os.getenv("SHIPPO_API_KEY", "")
