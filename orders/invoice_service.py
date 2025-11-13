@@ -12,14 +12,10 @@ def generate_invoice(order):
     p = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    # --- Company Logo ---
     try:
         logo_path = os.path.join(settings.BASE_DIR, settings.SHOP_LOGO)
-
         img = Image.open(logo_path)
 
-        # 2️⃣ Convert transparency and color mode
-        # If image has an alpha channel, blend it on a white background
         if img.mode in ("RGBA", "LA"):
             background = Image.new("RGB", img.size, (255, 255, 255))
             background.paste(img, mask=img.split()[-1])
@@ -32,15 +28,12 @@ def generate_invoice(order):
         h_size = int((float(img.size[1]) * float(w_percent)))
         img = img.resize((max_width, h_size), Image.LANCZOS)
 
-        # 4️⃣ Convert Pillow image to a ReportLab ImageReader
         img_io = io.BytesIO()
         img.save(img_io, format="PNG")
         img_io.seek(0)
         logo = ImageReader(img_io)
 
-        # 5️⃣ Draw image in the PDF
         p.drawImage(logo, 50, height - 100, width=50, preserveAspectRatio=True, mask='auto')
-
     except Exception as e:
         print("Logo error:", e)
         p.setFont("Helvetica-Bold", 14)

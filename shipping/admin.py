@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Shipment
-from .services import create_shippo_label
+from .services import ShippingService
 
 
 @admin.register(Shipment)
@@ -47,7 +47,7 @@ class ShipmentAdmin(admin.ModelAdmin):
         success, failed = 0, 0
         for shipment in queryset:
             try:
-                label_info = create_shippo_label(shipment.order)
+                label_info = ShippingService.create_shippo_label(shipment.order)
                 shipment.mark_label_created(
                     shippo_id=label_info["shippo_id"],
                     tracking_number=label_info["tracking_number"],

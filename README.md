@@ -1,285 +1,262 @@
-# LensCove
+# 🖼️ LensCove
 
-LensCove is a Django web application for browsing, ordering and customizing fine‑art prints of images. Customers can choose image dimensions, frame type and color, add items to a cart, checkout, and receive an email (HTML + plain text) with a PDF invoice attached.
-
----
-
-## Tech stack / versions
-
-- Python: 3.13
-- Django: 5.2.6
-- Other dependencies: see `requirements.txt`
-
-(These versions are taken from `requirements.txt`; adjust your Python interpreter to match.)
+**LensCove** is a Django web application for browsing, customizing, and ordering fine-art prints.  
+Customers can choose image dimensions, frame type and color, add items to a cart, complete checkout with Mollie, and receive a confirmation email with a PDF invoice and shipment tracking.
 
 ---
 
-## Key pages
-
-- Home — featured and best sellers
-- Gallery — browse collections and product list
-- Product detail — view image, choose dimensions / frame options and add to cart
-- Cart — review items, update quantity, remove items
-- Checkout (Order Create) — enter shipping / contact info and place order
-- Online payment — make payment with Mollie
-- Order created / confirmation — order summary, invoice download
-- Admin — manage products, categories, orders
+## 📋 Table of Contents
+- [Quick Start](#quick-start)
+- [Tech Stack](#tech-stack)
+- [Key Pages](#key-pages)
+- [Main Features](#main-features)
+- [Project Structure](#project-structure)
+- [Setup (macOS)](#setup-macos)
+- [Running Tests](#running-tests)
+- [Payments (Mollie)](#payments-gateway-setup)
+- [Shipping (Shippo)](#shipment-provider-setup)
+- [Deployment Notes](#deployment-notes)
+- [Roadmap / Future Ideas](#roadmap--future-ideas)
+- [Tips & Gotchas](#tips--gotchas)
 
 ---
 
-## Main features
+## 🚀 Quick Start
 
-- Browse curated image gallery and product pages.
-- Order fine art prints:
-  - Choose image dimension (e.g. 10x15 / 13x18 / 20x30 or custom options).
-  - Choose frame type (plastic / wood / classic / modern).
-  - Choose frame color (black / white / gold / wooden).
-  - Quantity selector with client-side controls.
-- Cart with add / update / remove behavior.
-- Checkout creates Order and OrderItem records, stores chosen options on items.
-- Pay the invoice with Mollie.
+```bash
+git clone https://github.com/mgrecuccio/lenscove.git
+cd lenscove
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Then visit 👉 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+
+---
+
+## ⚙️ Tech Stack
+
+- **Python** 3.13  
+- **Django** 5.2.6  
+- Other dependencies listed in `requirements.txt`
+
+---
+
+## 🖼️ Key Pages
+
+- **Home** — featured and best sellers  
+- **Gallery** — browse collections and products  
+- **Product Detail** — choose image, dimension, and frame options  
+- **Cart** — review, update, and remove items  
+- **Checkout (Order Create)** — enter contact and shipping info  
+- **Payment (Mollie)** — secure online payment  
+- **Order Confirmation** — summary and downloadable invoice  
+- **Admin** — manage products, categories, and orders  
+
+---
+
+## 💡 Main Features
+
+- Browse curated image galleries  
+- Order fine-art prints with:
+  - Dimensions (10×15, 13×18, 20×30, etc.)
+  - Frame type and color  
+  - Quantity controls  
+- Full cart management (add / update / remove)  
+- Checkout flow creating `Order` and `OrderItem` records  
+- Secure payment with **Mollie**  
 - Email notifications:
-  - Sends multipart email (plain text + HTML) to customer.
-  - Attaches generated PDF invoice.
-- Create label and track packages with Shippo
-- PDF invoice generation using ReportLab.
-- Unit tests for views, utilities and invoice generation.
-- Bootstrap-based UI (Cerulean theme recommended).
+  - HTML + plain text email to customer  
+  - PDF invoice attachment (via ReportLab)  
+- Shipment label creation and tracking via **Shippo**  
+- Unit tests for views, utilities, and email/invoice logic  
+- Responsive **Bootstrap 5** (Cerulean theme)
 
 ---
 
-## Project structure (high level)
+## 🗂️ Project Structure
 
-- store/ — product and category models, gallery and product views
-- cart/ — cart logic, add/update/remove views, forms
-- orders/ — order models, forms, views, invoice generator and email utils
-- payments/ — payments business logic integration with Mollie
-- shipping/ — packages tracking and labels creation with Shippo
-- templates/ — HTML and email templates (text + HTML)
-- static/ — CSS/JS/assets
-- config/ — project settings / URLs
+| App | Responsibility |
+|-----|----------------|
+| **store/** | Products, categories, gallery views |
+| **cart/** | Session-based cart logic and views |
+| **orders/** | Order models, checkout, invoices, and email |
+| **payments/** | Mollie integration |
+| **shipping/** | Shippo integration and tracking webhooks |
+| **templates/** | HTML & email templates |
+| **static/** | CSS, JS, and images |
+| **config/** | Global settings and URL routing |
 
 ---
 
-## Setup (macOS)
+## 🧰 Setup (macOS)
 
-1. Clone repository
-   ```
+1. **Clone and create a virtual environment**
+   ```bash
    git clone https://github.com/mgrecuccio/lenscove.git
    cd lenscove
-   ```
-
-2. Create and activate virtual environment (macOS)
-   ```
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. Install dependencies
-   ```
+   python3 -m venv venv && source venv/bin/activate
    pip install -r requirements.txt
    ```
 
-4. Configure local settings
-   - Copy or create `config/.env` or set environment variables for:
-     - DJANGO_SETTINGS_MODULE (if needed for tests/tools)
-     - EMAIL backend / credentials (e.g. for SMTP) and `DEFAULT_FROM_EMAIL`
-     - MEDIA_ROOT and MEDIA_URL for uploaded images
-   - For local development you can use the console or file email backend:
-     ```
-     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-     EMAIL_FILE_PATH = BASE_DIR / 'tmp/emails'
-     DEFAULT_FROM_EMAIL = 'webmaster@localhost'
-     ```
-
-5. Apply migrations and create admin user
+2. **Environment configuration**
+   Copy `.env.example` to `.env` and update as needed:
+   ```bash
+   SECRET_KEY=your_secret
+   MOLLIE_API_KEY=test_xxx
+   SHIPPO_API_KEY=shippo_test_xxx
+   EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
+   EMAIL_FILE_PATH=tmp/emails
    ```
+
+3. **Apply migrations and create superuser**
+   ```bash
    python manage.py migrate
    python manage.py createsuperuser
    ```
 
-6. Run development server
-   ```
+4. **Run development server**
+   ```bash
    python manage.py runserver
    ```
-   Visit http://127.0.0.1:8000/
+   Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 
 ---
 
-## Running tests
-
-- Run Django tests from CLI:
-  ```
-  python manage.py test
-  ```
-
-- From VS Code (Test Explorer) — recommended settings (create `.vscode/settings.json`):
-  ```
-  {
-    "python.testing.unittestEnabled": true,
-    "python.testing.pytestEnabled": false,
-    "python.testing.unittestArgs": [
-      "-v",
-      "-s",
-      ".",
-      "-p",
-      "test_*.py"
-    ],
-    "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python"
-  }
-  ```
-  - Make sure the workspace Python interpreter is set to the created venv.
-  - VS Code will discover Django `TestCase` tests and allow run/debug.
-
----
-
-## Notes about email & invoice tests
-
-- The email utility sends a multipart message and attaches the generated PDF. In unit tests:
-  - Use Django's `mail.outbox` to inspect sent messages.
-  - Patch `orders.utils.generate_invoice` (or `orders.invoice.generate_invoice`) with `unittest.mock.patch` to avoid creating real PDF files in tests and assert it was called.
-  - Example assert: `mock_generate.assert_called_once_with(order)`.
-  - To assert `send_order_confirmation_email` is called from the view, patch `orders.utils.send_order_confirmation_email` in tests.
-
----
-
-## Payments Gateway setup
-
-
-### 1. Create a Mollie free account
-
-1. Sign up for a Mollie account (https://www.mollie.com). Use the Dashboard to create a free test account.
-2. In the Mollie Dashboard switch to "Test mode" and obtain your **Test API key** (starts with `test_...`).
-3. In your local project, set the key in settings or environment variables:
-   - Example (config/settings.py or env):
-     - MOLLIE_API_KEY = "test_your_key_here"
-     - MOLLIE_PROFILE_ID = "your_profile_id"  # optional
-4. Configure redirect and webhook URLs in the Mollie dashboard (you can use ngrok during development — see below).
-5. Use the test API key when running payments in development. Validate webhooks and redirect URLs with Mollie's test transactions.
-
-Security note: never commit production API keys. Use environment variables or a secrets manager for production.
-
-### 2. Setup ngrok to test in dev / local environment
-
-1. Install ngrok:
-   - macOS (Homebrew): `brew install --cask ngrok` or download from https://ngrok.com
-2. Start your Django dev server:
-   - `python manage.py runserver 8000`
-3. Start ngrok to expose the local server:
-   - `ngrok http 8000`
-4. Copy the forward URL shown by ngrok (e.g. `https://abcd1234.ngrok.io`) and use it to configure external services:
-   - Set Mollie redirect URL: `https://<ngrok-id>.ngrok.io/payments/return/`
-   - Set Mollie webhook URL: `https://<ngrok-id>.ngrok.io/payments/webhook/`
-   - Example settings override (use env vars in real setup):
-     - MOLLIE_REDIRECT_URL = "https://abcd1234.ngrok.io/payments/return/"
-     - MOLLIE_WEBHOOK_URL = "https://abcd1234.ngrok.io/payments/webhook/"
-6. In general settings.py, add the ngrok URLs to the ALLOWED_HOSTS list:
-
-   ```
-   ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '.ngrok-free.dev',
-   ]
-   ```
-5. Notes:
-   - Ensure your dev server is reachable on the same port you expose with ngrok.
-   - If DEBUG = False, add the ngrok host to ALLOWED_HOSTS.
-   - Use Mollie test API keys while testing; switch to live keys for production.
-
-You can now test payment flows and webhook handling locally using the public ngrok URL. Fill in any project-specific webhook paths and environment variables as needed.
-
-
----
-
-## Shipment Provider setup
-
-### 1. Shipment integration (Shippo)
-
-We added a `shipment` app that integrates with Shippo (https://goshippo.com) to create labels and receive tracking updates.
-
-What Shippo does
-- Shippo is a shipping API / aggregator that creates carrier labels, tracks shipments and posts webhook events for status updates.
-- We use the official Shippo Python SDK to create shipments/labels and to receive tracking events.
-
-Requirements
-- A Shippo account is required (https://goshippo.com). Create a free test account for development.
-- In test/sandbox mode you can generate as many test labels as you need without billing.
-
-Configuration
-- Generate a Shippo test API key in the Shippo dashboard and add it to your Django settings or environment:
-```python
-# config/settings.py
-SHIPPO_API_KEY = "shippo_test_XXXX"
-# optional: set webhook URL, or generate it dynamically in code
-SHIPPO_WEBHOOK_URL = "https://your-ngrok-id.ngrok.io/shipping/webhook/"
-```
-- Do NOT commit API keys. Use environment variables or a .env file for secrets.
-
-### 2. Webhooks
-- Create a webhook in Shippo at: https://portal.goshippo.com/api-config/webhooks (use your ngrok public URL in dev).
-- Shippo will POST JSON payloads to your webhook endpoint when tracking updates occur.
-- Use ngrok to expose your local server and configure Shippo to call the ngrok URL:
-  1. Run Django dev server: `python manage.py runserver 8000`
-  2. Start ngrok: `ngrok http 8000`
-  3. Copy ngrok forwarding URL and set it in Shippo webhook config (or set SHIPPO_WEBHOOK_URL in settings)
-
-#### Testing / Sandbox notes
-- Shippo sandbox uses special test tracking tokens instead of real carrier numbers. Example tokens:
-  - `SHIPPO_TRANSIT` → simulates "in transit"
-  - `SHIPPO_DELIVERED` → simulates "delivered"
-  - `SHIPPO_RETURNED` → simulates "returned"
-  - `SHIPPO_FAILURE` → simulates "failed delivery"
-
-Why tokens are used
-- In sandbox mode Shippo does not call real carriers. Those tokens instruct the sandbox to simulate the corresponding lifecycle and trigger predictable webhook events.
-
-Manual webhook payload (example)
-- You can simulate a Shippo tracking event locally with curl:
+## 🧪 Running Tests
 
 ```bash
-curl -X POST http://127.0.0.1:8000/shipping/webhook/ \
-  -H "Content-Type: application/json" \
-  -d '{
-        "event": "track_updated",
-        "data": {
-          "tracking_number": "SHIPPO_DELIVERED",
-          "tracking_status": {"status": "DELIVERED"}
-        }
-      }'
+python manage.py test
 ```
 
-Notes on test tracking numbers
-- `SHIPPO_DELIVERED` is not a real carrier code; it is a Shippo sandbox token that causes Shippo to send a "DELIVERED" webhook.
-- Your Django DB should store whatever Shippo sends (fake or real), and your webhook processing must match on that stored value.
-
-Utility for tests / local simulation
-- To avoid "Shipment not found" when testing webhook callbacks, use the provided management helper to create a local test shipment that matches the Shippo token:
-
-```bash
-python manage.py create_test_shippo_shipment SHIPPO_DELIVERED
+**VS Code integration (optional):**  
+`.vscode/settings.json`
+```json
+{
+  "python.testing.unittestEnabled": true,
+  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python"
+}
 ```
-
-This creates a shipment record in the DB that the webhook handler can find and update when Shippo posts the test event.
-
-### 3. Tips and troubleshooting
-- Add your ngrok host to `ALLOWED_HOSTS` or set `DEBUG = True` in development.
-- Inspect incoming requests with the ngrok web UI: http://127.0.0.1:4040
-- Log incoming webhook payloads to see what Shippo sends; webhook bodies are JSON.
-- Use sandbox API keys for development and switch to live keys in production.
-- If you get "Shipment not found", confirm the tracking number in the webhook matches a DB record (or use the `create_test_shippo_shipment` helper).
 
 ---
 
-## Tips & gotchas
+## 💳 Payments Gateway Setup (Mollie)
 
-- Always assign `.choices` properly when using Django `TextChoices` enums: use `MyEnum.choices`, not the class itself.
-- When constructing form choices dynamically in views, assign `form.fields['fieldname'].choices = ...` before rendering or validating.
-- When attaching files to EmailMultiAlternatives, `pdf_buffer.seek(0)` is required before `pdf_buffer.read()`.
-- Use consistent field names across form, view and template (e.g., `dimension` vs `dimensions`) — mismatches lead to invalid forms.
-- Serve MEDIA files in dev with:
-  ```
+1. **Create a Mollie account:** [https://www.mollie.com](https://www.mollie.com)  
+2. Switch to **Test mode** and obtain your test API key (`test_...`).  
+3. Add in settings or `.env`:
+   ```bash
+   MOLLIE_API_KEY=test_xxx
+   ```
+4. Expose your local server with **ngrok**:
+   ```bash
+   ngrok http 8000
+   ```
+   Then configure redirect/webhook URLs in Mollie using the ngrok domain:
+   ```
+   MOLLIE_REDIRECT_URL=https://<ngrok-id>.ngrok.io/payments/return/
+   MOLLIE_WEBHOOK_URL=https://<ngrok-id>.ngrok.io/payments/webhook/
+   ```
+5. Add ngrok hosts to allowed hosts:
+   ```python
+   ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.dev']
+   ```
+
+Use Mollie’s sandbox for test transactions and webhook simulations.
+
+---
+
+## 📦 Shipment Provider Setup (Shippo)
+
+1. **Create a Shippo account** — [https://goshippo.com](https://goshippo.com)  
+   Use test mode and generate an API key:
+   ```bash
+   SHIPPO_API_KEY=shippo_test_xxx
+   SHIPPO_WEBHOOK_URL=https://your-ngrok-id.ngrok.io/shipping/webhook/
+   ```
+
+2. **Webhook configuration**
+   - In the Shippo Dashboard, add your ngrok URL as a webhook target.  
+   - Example endpoint: `https://<ngrok-id>.ngrok.io/shipping/webhook/`.
+
+3. **Simulate tracking events in sandbox**
+   - `SHIPPO_TRANSIT` → in transit  
+   - `SHIPPO_DELIVERED` → delivered  
+   - `SHIPPO_RETURNED` → returned  
+   - `SHIPPO_FAILURE` → failed delivery  
+
+4. **Test locally**
+   ```bash
+   curl -X POST http://127.0.0.1:8000/shipping/webhook/    -H "Content-Type: application/json"    -d '{
+         "event": "track_updated",
+         "data": {
+           "tracking_number": "SHIPPO_DELIVERED",
+           "tracking_status": {"status": "DELIVERED"}
+         }
+       }'
+   ```
+
+5. **Create local test shipments**
+   ```bash
+   python manage.py create_test_shippo_shipment SHIPPO_DELIVERED
+   ```
+
+Use ngrok’s dashboard (`http://127.0.0.1:4040`) to inspect incoming requests.
+
+---
+
+## ☁️ Deployment Notes
+
+LensCove runs on any WSGI-compatible host.
+
+**Recommended stack:**
+- PostgreSQL  
+- Gunicorn + Nginx  
+- Environment config via `.env` or secrets manager  
+
+**Deploy steps:**
+```bash
+python manage.py collectstatic
+python manage.py migrate
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
+```
+
+Set `DEBUG=False` and configure `ALLOWED_HOSTS` and secure API keys.
+
+---
+
+## 🛠️ Roadmap / Future Ideas
+
+- User accounts and order history  
+- Coupon codes and promotions  
+- Print-on-demand provider integration (e.g., Printful)  
+- Admin shipping dashboard / analytics  
+- Full Docker + PostgreSQL deployment  
+
+---
+
+## ⚠️ Tips & Gotchas
+
+- Use `.choices` from `TextChoices`, not the class itself  
+- Assign form `.choices` dynamically *before* validation  
+- Reset PDF buffer with `pdf_buffer.seek(0)` before reading  
+- Ensure consistent field names between form, view, and template  
+- Serve MEDIA in dev:
+  ```python
   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
   ```
 
 ---
+
+## 🧩 Badges
+
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![Django](https://img.shields.io/badge/django-5.2.6-green)
+
+---
+
+✅ **In summary:**  
+LensCove provides a full end-to-end fine-art print e-commerce workflow with payments, invoices, and shipment tracking — ready for production deployment.

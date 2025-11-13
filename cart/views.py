@@ -1,20 +1,22 @@
 from . import logging
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from .cart import Cart
 from store.models import Product
-from cart.forms import AddToCartForm
+from .forms import AddToCartForm
+from .services import CartService
 
 logger = logging.getLogger(__name__)
 
 @require_GET
-def cart_detail(request):
+def cart_detail(request) -> HttpResponse:
     cart = Cart(request)
     return render(request, "cart/detail.html", {"cart": cart})
 
 
 @require_POST
-def cart_add(request, product_id):
+def cart_add(request, product_id) -> HttpResponseRedirect:
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
 
@@ -28,7 +30,8 @@ def cart_add(request, product_id):
         frame_type=cd["frame_type"]
         frame_color=cd["frame_color"]
 
-        cart.add(
+        CartService.add_product_to_cart(
+            cart=cart,
             product=product,
             quantity=quantity,
             override_quantity=False,
@@ -43,30 +46,19 @@ def cart_add(request, product_id):
 
 
 @require_POST    
-def cart_update(request, product_id):
+def cart_update(request, product_id) -> HttpResponseRedirect:
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
 
     if(cart.contains(product) == False):
         return redirect("cart:cart_detail")
-
-    received_quantity = request.POST.get("quantity")
-    quantity = get_quantity(received_quantity)
-
-    if quantity <= 0:
-        cart.remove(product)
-    else:
-        cart.add(
-            product=product,
-            quantity=quantity,
-            override_quantity=True
-        )
-
+    
+    CartService.update_cart_quantity(cart, product, request.POST.get("quantity"))
     return redirect("cart:cart_detail")
 
 
 @require_POST
-def cart_remove(request, product_id):
+def cart_remove(request, product_id) -> HttpResponseRedirect:
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
