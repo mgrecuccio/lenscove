@@ -4,7 +4,7 @@ from django.urls import path
 from django.utils.html import format_html
 from .models import Order, OrderItem
 from shipping.models import Shipment
-from .invoice_service import generate_invoice
+from .invoice_service import InvoiceService
 
 
 class OrderItemInline(admin.TabularInline):
@@ -57,7 +57,7 @@ class OrderAdmin(admin.ModelAdmin):
         if order.invoice_pdf:
             return HttpResponseRedirect(order.invoice_pdf.url)
 
-        pdf_buffer = generate_invoice(order)
+        pdf_buffer = InvoiceService.generate_invoice(order)
         order.invoice_pdf.save(
             f"invoice_{order.id}.pdf",
             pdf_buffer,

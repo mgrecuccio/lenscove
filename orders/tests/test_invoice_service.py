@@ -1,33 +1,53 @@
-from unittest.mock import patch, MagicMock
 from django.test import TestCase
-from django.conf import settings
-from orders.invoice_service import generate_invoice
+from PyPDF2 import PdfReader
+from orders.models import Order, OrderItem
+from store.models import Product
+from orders.invoice_service import InvoiceService
+import io
 
 
-class GenerateInvoiceTest(TestCase):
-    @patch("orders.invoice_service.canvas.Canvas")
-    @patch("orders.invoice_service.Image.open")
-    @patch("orders.invoice_service.os.path.join")
-    def test_generate_invoice_returns_buffer(self, mock_join, mock_open, mock_canvas):
-        mock_open.return_value = MagicMock()
-        fake_canvas = MagicMock()
-        mock_canvas.return_value = fake_canvas
-        order = MagicMock()
-        order.id = 99
-        order.items.all.return_value = []
+class TestInvoiceGeneration(TestCase):
 
-        buffer = generate_invoice(order)
+    def setUp(self):
+        self.product = Product.objects.create(
+            title="Sample Photo",
+            price=19.99,
+            slug="sample-photo"
+        )
 
-        self.assertTrue(hasattr(buffer, "read"))
-        fake_canvas.drawString.assert_any_call(50, mock_canvas.call_args[1].get("pagesize", (0, 0))[1] - 165, f"Invoice #{order.id}")
-        fake_canvas.save.assert_called_once()
-        mock_join.assert_called_once_with(settings.BASE_DIR, settings.SHOP_LOGO)
+        self.order = Order.objects.create(
+            first_name="Marco",
+            last_name="Test",
+            email="marco@example.com",
+            address="123 Street",
+            postal_code="1000",
+            city="Brussels",
+        )
+
+        OrderItem.objects.create(
+            order=self.order,
+            product=self.product,
+            price=self.product.price,
+            quantity=2,
+        )
 
 
-    def test_generate_invoice_handles_missing_logo_gracefully(self):
-        order = MagicMock()
-        order.id = 1
-        order.items.all.return_value = []
-        buffer = generate_invoice(order)
-        content = buffer.read(20)
-        self.assertIsInstance(content, bytes)
+    def test_generate_invoice_returns_pdf(self):
+        buffer = InvoiceService.generate_invoice(self.order)
+
+        self.assertIsInstance(buffer, io.BytesIO)
+        content = buffer.getvalue()
+        self.assertTrue(len(content) > 1000)
+
+
+        pdf = PdfReader(buffer)
+        self.assertGreater(len(pdf.pages), 0, "PDF should have at least 1 page")
+
+
+        text = pdf.pages[0].extract_text()
+        self.assertIn(f"Invoice #{self.order.id}", text)
+
+        self.assertIn("Marco Test", text)
+
+        self.assertIn("Sample Photo", text)
+        self.assertIn("39.98", text)

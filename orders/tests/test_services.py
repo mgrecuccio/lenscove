@@ -17,7 +17,7 @@ class OrderServiceTests(TestCase):
         )
 
 
-    @patch("orders.services.generate_invoice")
+    @patch("orders.services.InvoiceService.generate_invoice")
     def test_create_order_from_cart_creates_items_and_clears_cart(
         self, mock_generate_invoice
     ):
@@ -61,7 +61,7 @@ class OrderServiceTests(TestCase):
         self.assertEqual(OrderItem.objects.filter(order=order).count(), 1)
 
 
-    @patch("orders.services.generate_invoice")
+    @patch("orders.services.InvoiceService.generate_invoice")
     def test_generates_invoice_when_invoice_pdf_missing(self, mock_generate):
         order = MagicMock()
         order.id = 999
@@ -71,7 +71,7 @@ class OrderServiceTests(TestCase):
         mock_generate.assert_called_once_with(order)
 
 
-    @patch("orders.services.generate_invoice")
+    @patch("orders.services.InvoiceService.generate_invoice")
     def test_generates_invoice_when_invoice_pdf_exists(self, mock_generate):
         mock_file = MagicMock()
         mock_file.path = "/tmp/fake_invoice.pdf"

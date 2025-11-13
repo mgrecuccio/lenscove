@@ -2,7 +2,7 @@ import logging
 from django.db import transaction
 from cart.cart import Cart
 from .models import Order, OrderItem
-from .invoice_service import generate_invoice
+from .invoice_service import InvoiceService
 
 logger = logging.getLogger(__name__)
 
@@ -37,4 +37,4 @@ class OrderService:
             return open(order.invoice_pdf.path, "rb")
 
         logger.info(f"Generating new invoice for order {order.id}")
-        return generate_invoice(order)
+        return InvoiceService.generate_invoice(order)
