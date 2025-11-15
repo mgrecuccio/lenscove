@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'orders',
     'payments',
     'shipping',
+    'contacts',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +142,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CART_SESSION_ID = "cart"
 
+# Contact email settings
+DEFAULT_FROM_EMAIL = "no-reply@lenscove.com"
+CONTACT_RECEIVER_EMAIL = "admin@lenscove.com"
+
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = "tmp/emails"
@@ -149,9 +154,9 @@ EMAIL_FILE_PATH = "tmp/emails"
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'marco.grecuccio@mgrtech.eu'
 # EMAIL_HOST_PASSWORD = 'yourpassword'
-# DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech.eu>'
+DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech.eu>'
 
-# Invoice settings (now read from env with sensible defaults)
+# Invoice settings
 SHOP_NAME = os.getenv("SHOP_NAME", "LensCove Shop")
 SHOP_ADDRESS = os.getenv("SHOP_ADDRESS", "123 Creative Street, Brussels, Belgium")
 SHOP_EMAIL = os.getenv("SHOP_EMAIL", "support@lenscove.com")

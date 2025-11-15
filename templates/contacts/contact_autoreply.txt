@@ -1,0 +1,11 @@
+Hi {{ contact.first_name }},
+
+Thanks for getting in touch with LensCove!
+
+We’ve received your message about:
+"{{ contact.subject }}"
+
+We’ll get back to you as soon as possible.
+
+Best regards,
+The LensCove Team

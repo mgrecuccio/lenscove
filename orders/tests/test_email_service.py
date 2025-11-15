@@ -1,14 +1,11 @@
 from django.test import TestCase, override_settings
 from unittest.mock import patch, MagicMock
-from orders.models import Order, OrderItem
-from orders.email_service import send_order_confirmation_email
+from orders.email_service import EmailService
 from django.core import mail
-from store.models import Product
 
 
 @override_settings(DEFAULT_FROM_EMAIL='test_sender@example.com')
 class SendOrderEmailTests(TestCase):
-
 
     def setUp(self):
         self.order = MagicMock()
@@ -26,7 +23,7 @@ class SendOrderEmailTests(TestCase):
 
         fake_pdf = MagicMock()
         fake_pdf.read.return_value = b"fake-pdf-data"
-        send_order_confirmation_email(self.order, fake_pdf)
+        EmailService.send_order_confirmation_email(self.order, fake_pdf)
 
 
         self.assertEqual(len(mail.outbox), 1)
@@ -53,6 +50,6 @@ class SendOrderEmailTests(TestCase):
         self.order.invoice_pdf = mock_file
 
         with patch("orders.email_service.EmailMultiAlternatives.attach_file") as mock_attach:
-            send_order_confirmation_email(self.order, MagicMock())
+            EmailService.send_order_confirmation_email(self.order, MagicMock())
             mock_attach.assert_called_once_with("/tmp/invoice_42.pdf")
                 

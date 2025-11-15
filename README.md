@@ -48,6 +48,7 @@ Then visit 👉 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 
 - **Home** — featured and best sellers  
 - **Gallery** — browse collections and products  
+- **Contact** — Contact us form to reach out
 - **Product Detail** — choose image, dimension, and frame options  
 - **Cart** — review, update, and remove items  
 - **Checkout (Order Create)** — enter contact and shipping info  
@@ -64,6 +65,7 @@ Then visit 👉 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
   - Dimensions (10×15, 13×18, 20×30, etc.)
   - Frame type and color  
   - Quantity controls  
+ - Contact page that lets customers reach out
 - Full cart management (add / update / remove)  
 - Checkout flow creating `Order` and `OrderItem` records  
 - Secure payment with **Mollie**  
@@ -83,6 +85,7 @@ Then visit 👉 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 | **store/** | Products, categories, gallery views |
 | **cart/** | Session-based cart logic and views |
 | **orders/** | Order models, checkout, invoices, and email |
+| **contacts/** | Contact form for sending messages |
 | **payments/** | Mollie integration |
 | **shipping/** | Shippo integration and tracking webhooks |
 | **templates/** | HTML & email templates |
@@ -205,6 +208,37 @@ Use Mollie’s sandbox for test transactions and webhook simulations.
    ```
 
 Use ngrok’s dashboard (`http://127.0.0.1:4040`) to inspect incoming requests.
+
+---
+
+## 📨 Contact & Messaging 
+
+LensCove includes a complete **Contact App** that lets customers reach
+out for product inquiries, order questions, shipment info, or
+collaboration requests.
+
+#### Main Capabilities
+
+-   Public Bootstrap 5 contact form\
+-   All fields required\
+-   Saves message to DB\
+-   Sends admin notification\
+-   Sends customer auto-reply\
+-   HTML + text email templates
+
+#### Email Templates
+
+    templates/emails/contact_notification.html
+    templates/emails/contact_notification.txt
+    templates/emails/contact_autoreply.html
+    templates/emails/contact_autoreply.txt
+
+------------------------------------------------------------------------
+
+#### Settings
+
+    DEFAULT_FROM_EMAIL=no-reply@lenscove.com
+    CONTACT_RECEIVER_EMAIL=admin@lenscove.com
 
 ---
 

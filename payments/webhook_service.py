@@ -3,8 +3,8 @@ from django.db import transaction
 from orders.models import Order
 from payments.models import Payment
 from shipping.models import Shipment
-from orders.email_service import send_order_confirmation_email
-from orders.invoice_service import generate_invoice
+from orders.email_service import EmailService
+from orders.invoice_service import InvoiceService
 from shipping.services import ShippingService
 from django.core.files.base import ContentFile
 
@@ -35,14 +35,15 @@ class WebhookService:
         order.mark_paid()
         logger.info(f"Order {order.id} marked as paid")
 
-        pdf_buffer = generate_invoice(order)
+        pdf_buffer = InvoiceService.generate_invoice(order)
         pdf_buffer.seek(0)
         order.invoice_pdf.save(
             f"invoice_{order.id}.pdf",
             ContentFile(pdf_buffer.read()),
             save=True,
         )
-        send_order_confirmation_email(order, pdf_buffer)
+        
+        EmailService.send_order_confirmation_email(order, pdf_buffer)
         logger.info(f"Invoice created and confirmation sent for order {order.id}")
 
         shipment = Shipment.objects.create(order=order)

@@ -43,8 +43,8 @@ class WebhookServiceTests(TestCase):
     
     @patch("shipping.services.ShippingService.create_shippo_label")
     @patch("shipping.models.Shipment.objects.create")
-    @patch("orders.email_service.send_order_confirmation_email")
-    @patch("orders.invoice_service.generate_invoice")
+    @patch("orders.email_service.EmailService.send_order_confirmation_email")
+    @patch("orders.invoice_service.InvoiceService.generate_invoice")
     @patch("django.core.mail.EmailMultiAlternatives.attach_file")
     def test_mark_paid_generates_invoice_and_creates_shipment(
         self, mock_attachment, mock_generate_invoice, mock_send_email, mock_create_shipment, mock_create_label
