@@ -1,213 +1,229 @@
-# 🖼️ LensCove
+# 🖼️ LensCove — Fine-Art Print E-Commerce
 
-**LensCove** is a Django web application for browsing, customizing, and ordering fine-art prints.  
-Customers can choose image dimensions, frame type and color, add items to a cart, complete checkout with Mollie, and receive a confirmation email with a PDF invoice and shipment tracking.
+**LensCove** is a full e-commerce web application for browsing, customizing, and ordering fine-art photographic prints.  
+It includes a complete checkout workflow, online payments (Mollie), shipping label creation & tracking (Shippo), PDF invoicing, email notifications, and a clean Bootstrap-based UI.
 
 ---
 
 ## 📋 Table of Contents
-- [Quick Start](#quick-start)
-- [Tech Stack](#tech-stack)
-- [Key Pages](#key-pages)
-- [Main Features](#main-features)
-- [Project Structure](#project-structure)
-- [Setup (macOS)](#setup-macos)
-- [Running Tests](#running-tests)
-- [Payments (Mollie)](#payments-gateway-setup)
-- [Shipping (Shippo)](#shipment-provider-setup)
-- [Deployment Notes](#deployment-notes)
-- [Roadmap / Future Ideas](#roadmap--future-ideas)
-- [Tips & Gotchas](#tips--gotchas)
+
+- [Features](#-features)
+- [Tech Stack](#️-tech-stack)
+- [Project Structure](#-project-structure)
+- [Local Development (non-Docker)](#-local-development-non-docker)
+- [Docker Development Setup](#-docker-development-setup)
+  - [Environment Variables](#environment-variables)
+  - [Start Containers](#start-containers)
+  - [Apply Migrations](#apply-migrations)
+  - [Accessing Postgres via TablePlus](#accessing-postgres)
+  - [Resetting the DB](#resetting-the-db)
+- [Running Tests](#-running-tests)
+- [Mollie Payments Setup](#-payments-mollie)
+- [Shippo Shipping Setup](#-shipping-shippo)
+- [Deployment Notes](#-deployment-notes)
+- [Roadmap](#-roadmap)
+- [Troubleshooting](#-troubleshooting)
+- [Badges](#-badges)
 
 ---
 
-## 🚀 Quick Start
+# 🌟 Features
+
+✔ Browse curated image collections  
+✔ Product detail pages with dimension & frame selection  
+✔ Session-based shopping cart  
+✔ Checkout flow with Order + OrderItem models  
+✔ Online payments via **Mollie**  
+✔ Shipping label creation via **Shippo**  
+✔ Real shipment tracking + webhook updates  
+✔ PDF invoice generation (ReportLab)  
+✔ Email notifications (customer + admin)  
+✔ Full admin interface (Django admin)  
+✔ Dockerized environment with PostgreSQL  
+✔ SQLite-based in-memory tests for speed  
+
+---
+
+# 🧱 Tech Stack
+
+- **Python** 3.13  
+- **Django** 5.2.6  
+- **PostgreSQL 16**  
+- **Docker & Docker Compose**  
+- **Bootstrap 5 (Cerulean)**  
+- **ReportLab** for PDF invoices  
+- **Mollie** for payments  
+- **Shippo** for shipping  
+
+---
+
+# 📂 Project Structure
+
+```
+lenscove/
+│
+├── config/
+│   └── settings/
+│       ├── base.py
+│       ├── dev.py
+│       └── test.py
+│
+├── store/
+├── cart/
+├── orders/
+├── payments/
+├── shipping/
+├── contacts/
+│
+├── templates/
+├── static/
+├── docker-compose.yml
+├── Dockerfile
+└── README.md
+```
+
+---
+
+# 🧰 Local Development (non-Docker)
 
 ```bash
 git clone https://github.com/mgrecuccio/lenscove.git
 cd lenscove
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
 python manage.py migrate
 python manage.py runserver
 ```
 
-Then visit 👉 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+---
+
+# 🐳 Docker Development Setup
+
+This is the recommended way to develop LensCove.
+
+## Environment Variables
+
+Create `.env`:
+
+```
+SECRET_KEY=your-secret-key
+POSTGRES_DB=lenscove_dev
+POSTGRES_USER=lenscove
+POSTGRES_PASSWORD=lenscove
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+MOLLIE_API_KEY=test_xxx
+SHIPPO_API_KEY=shippo_test_xxx
+```
 
 ---
 
-## ⚙️ Tech Stack
+## Start Containers
 
-- **Python** 3.13  
-- **Django** 5.2.6  
-- Other dependencies listed in `requirements.txt`
+```bash
+docker-compose up --build
+```
 
----
-
-## 🖼️ Key Pages
-
-- **Home** — featured and best sellers  
-- **Gallery** — browse collections and products  
-- **Contact** — Contact us form to reach out
-- **Product Detail** — choose image, dimension, and frame options  
-- **Cart** — review, update, and remove items  
-- **Checkout (Order Create)** — enter contact and shipping info  
-- **Payment (Mollie)** — secure online payment  
-- **Order Confirmation** — summary and downloadable invoice  
-- **Admin** — manage products, categories, and orders  
+App → http://localhost:8000  
+Admin → http://localhost:8000/admin  
 
 ---
 
-## 💡 Main Features
+## Apply Migrations
 
-- Browse curated image galleries  
-- Order fine-art prints with:
-  - Dimensions (10×15, 13×18, 20×30, etc.)
-  - Frame type and color  
-  - Quantity controls  
- - Contact page that lets customers reach out
-- Full cart management (add / update / remove)  
-- Checkout flow creating `Order` and `OrderItem` records  
-- Secure payment with **Mollie**  
-- Email notifications:
-  - HTML + plain text email to customer  
-  - PDF invoice attachment (via ReportLab)  
-- Shipment label creation and tracking via **Shippo**  
-- Unit tests for views, utilities, and email/invoice logic  
-- Responsive **Bootstrap 5** (Cerulean theme)
+```bash
+docker-compose exec web python manage.py migrate
+```
+
+Create admin user:
+
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
 
 ---
 
-## 🗂️ Project Structure
+## Accessing Postgres
 
-| App | Responsibility |
-|-----|----------------|
-| **store/** | Products, categories, gallery views |
-| **cart/** | Session-based cart logic and views |
-| **orders/** | Order models, checkout, invoices, and email |
-| **contacts/** | Contact form for sending messages |
-| **payments/** | Mollie integration |
-| **shipping/** | Shippo integration and tracking webhooks |
-| **templates/** | HTML & email templates |
-| **static/** | CSS, JS, and images |
-| **config/** | Global settings and URL routing |
+### Using TablePlus
 
----
+```
+Host: localhost
+Port: 5432
+User: lenscove
+Password: lenscove
+Database: lenscove_dev
+```
 
-## 🧰 Setup (macOS)
+### Using psql
 
-1. **Clone and create a virtual environment**
-   ```bash
-   git clone https://github.com/mgrecuccio/lenscove.git
-   cd lenscove
-   python3 -m venv venv && source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-2. **Environment configuration**
-   Copy `.env.example` to `.env` and update as needed:
-   ```bash
-   SECRET_KEY=your_secret
-   MOLLIE_API_KEY=test_xxx
-   SHIPPO_API_KEY=shippo_test_xxx
-   EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
-   EMAIL_FILE_PATH=tmp/emails
-   ```
-
-3. **Apply migrations and create superuser**
-   ```bash
-   python manage.py migrate
-   python manage.py createsuperuser
-   ```
-
-4. **Run development server**
-   ```bash
-   python manage.py runserver
-   ```
-   Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+```bash
+docker-compose exec db psql -U lenscove -d lenscove_dev
+```
 
 ---
 
-## 🧪 Running Tests
+## Resetting the DB
+
+```bash
+docker-compose down -v
+docker-compose up --build
+docker-compose exec web python manage.py migrate
+```
+
+---
+
+# 🧪 Running Tests
 
 ```bash
 python manage.py test
 ```
 
-**VS Code integration (optional):**  
-`.vscode/settings.json`
-```json
-{
-  "python.testing.unittestEnabled": true,
-  "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
-  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python"
-}
+Uses **SQLite in-memory** for speed.
+
+---
+
+# 💳 Payments (Mollie)
+
+- Create account on https://mollie.com
+- Add API key to `.env`
+- Use ngrok for local callbacks:
+
+```
+ngrok http 8000
+```
+
+Then configure:
+
+```
+MOLLIE_REDIRECT_URL=https://<id>.ngrok.app/payments/return/
+MOLLIE_WEBHOOK_URL=https://<id>.ngrok.app/payments/webhook/
 ```
 
 ---
 
-## 💳 Payments Gateway Setup (Mollie)
+# 📦 Shipping (Shippo)
 
-1. **Create a Mollie account:** [https://www.mollie.com](https://www.mollie.com)  
-2. Switch to **Test mode** and obtain your test API key (`test_...`).  
-3. Add in settings or `.env`:
-   ```bash
-   MOLLIE_API_KEY=test_xxx
-   ```
-4. Expose your local server with **ngrok**:
-   ```bash
-   ngrok http 8000
-   ```
-   Then configure redirect/webhook URLs in Mollie using the ngrok domain:
-   ```
-   MOLLIE_REDIRECT_URL=https://<ngrok-id>.ngrok.io/payments/return/
-   MOLLIE_WEBHOOK_URL=https://<ngrok-id>.ngrok.io/payments/webhook/
-   ```
-5. Add ngrok hosts to allowed hosts:
-   ```python
-   ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.dev']
-   ```
+- Create account at https://goshippo.com
+- Add API key to `.env`
+- Create local test shipments**
+   
+```bash
+python manage.py create_test_shippo_shipment SHIPPO_DELIVERED
+```
+- Configure webhook:
 
-Use Mollie’s sandbox for test transactions and webhook simulations.
+```
+https://<ngrok>.ngrok.app/shipping/webhook/
+```
 
----
+Test webhook:
 
-## 📦 Shipment Provider Setup (Shippo)
-
-1. **Create a Shippo account** — [https://goshippo.com](https://goshippo.com)  
-   Use test mode and generate an API key:
-   ```bash
-   SHIPPO_API_KEY=shippo_test_xxx
-   SHIPPO_WEBHOOK_URL=https://your-ngrok-id.ngrok.io/shipping/webhook/
-   ```
-
-2. **Webhook configuration**
-   - In the Shippo Dashboard, add your ngrok URL as a webhook target.  
-   - Example endpoint: `https://<ngrok-id>.ngrok.io/shipping/webhook/`.
-
-3. **Simulate tracking events in sandbox**
-   - `SHIPPO_TRANSIT` → in transit  
-   - `SHIPPO_DELIVERED` → delivered  
-   - `SHIPPO_RETURNED` → returned  
-   - `SHIPPO_FAILURE` → failed delivery  
-
-4. **Test locally**
-   ```bash
-   curl -X POST http://127.0.0.1:8000/shipping/webhook/    -H "Content-Type: application/json"    -d '{
-         "event": "track_updated",
-         "data": {
-           "tracking_number": "SHIPPO_DELIVERED",
-           "tracking_status": {"status": "DELIVERED"}
-         }
-       }'
-   ```
-
-5. **Create local test shipments**
-   ```bash
-   python manage.py create_test_shippo_shipment SHIPPO_DELIVERED
-   ```
-
-Use ngrok’s dashboard (`http://127.0.0.1:4040`) to inspect incoming requests.
+```bash
+curl -X POST http://127.0.0.1:8000/shipping/webhook/   -H "Content-Type: application/json"   -d '{"event":"track_updated","data":{"tracking_status":{"status":"DELIVERED"},"tracking_number":"SHIPPO_DELIVERED"}}'
+```
 
 ---
 
@@ -233,45 +249,12 @@ collaboration requests.
     templates/emails/contact_autoreply.html
     templates/emails/contact_autoreply.txt
 
-------------------------------------------------------------------------
-
 #### Settings
 
     DEFAULT_FROM_EMAIL=no-reply@lenscove.com
     CONTACT_RECEIVER_EMAIL=admin@lenscove.com
 
----
-
-## ☁️ Deployment Notes
-
-LensCove runs on any WSGI-compatible host.
-
-**Recommended stack:**
-- PostgreSQL  
-- Gunicorn + Nginx  
-- Environment config via `.env` or secrets manager  
-
-**Deploy steps:**
-```bash
-python manage.py collectstatic
-python manage.py migrate
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
-```
-
-Set `DEBUG=False` and configure `ALLOWED_HOSTS` and secure API keys.
-
----
-
-## 🛠️ Roadmap / Future Ideas
-
-- User accounts and order history  
-- Coupon codes and promotions  
-- Print-on-demand provider integration (e.g., Printful)  
-- Admin shipping dashboard / analytics  
-- Full Docker + PostgreSQL deployment  
-
----
-
+----
 ## ⚠️ Tips & Gotchas
 
 - Use `.choices` from `TextChoices`, not the class itself  
@@ -285,12 +268,40 @@ Set `DEBUG=False` and configure `ALLOWED_HOSTS` and secure API keys.
 
 ---
 
-## 🧩 Badges
+# ☁️ Deployment Notes
 
-![Python](https://img.shields.io/badge/python-3.13-blue)
-![Django](https://img.shields.io/badge/django-5.2.6-green)
+```bash
+python manage.py collectstatic
+python manage.py migrate --noinput
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
+```
 
 ---
 
-✅ **In summary:**  
-LensCove provides a full end-to-end fine-art print e-commerce workflow with payments, invoices, and shipment tracking — ready for production deployment.
+# 🛣️ Roadmap
+
+- User accounts  
+- Discount codes  
+- Multi-currency  
+- Print-on-demand integration  
+- Admin shipping dashboard  
+- CDN for media  
+
+---
+
+# 🩺 Troubleshooting
+
+| Issue | Fix |
+|------|-----|
+| Cannot connect to Postgres | Stop macOS Postgres: `brew services stop postgresql` |
+| Tables missing in TablePlus | You connected to local Postgres instead of Docker |
+| SECRET_KEY empty | `.env` not loading — fix BASE_DIR |
+| dumpdata errors | Use `--settings=config.settings.test` |
+
+---
+
+# 🧩 Badges
+
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![Django](https://img.shields.io/badge/django-5.2.6-green)
+![Docker](https://img.shields.io/badge/docker-ready-blue)
