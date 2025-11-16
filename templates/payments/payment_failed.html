@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Payment Failed{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container text-center py-5">
+
+    <div class="alert alert-danger shadow-sm mb-5" role="alert">
+      <h3 class="alert-heading mb-3">
+        <i class="fa-solid fa-circle-xmark me-2"></i> Payment Unsuccessful
+      </h3>
+      <p class="lead mb-0">
+        Unfortunately, your payment for order <strong>#{{ order.id }}</strong> was not completed.
+      </p>
+      {% if status == "canceled" %}
+        <p class="text-muted mt-2">You canceled the payment before it was processed.</p>
+      {% elif status == "expired" %}
+        <p class="text-muted mt-2">Your payment session expired. Please try again.</p>
+      {% elif status == "failed" %}
+        <p class="text-muted mt-2">The transaction failed. Please check your payment details or use another method.</p>
+      {% endif %}
+    </div>
+
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'store' %}" class="btn btn-primary btn-lg">
+        <i class="fa-solid fa-rotate-right me-2"></i> Retry
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

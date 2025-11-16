@@ -8,6 +8,23 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DEBUG: "False"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SHOP_NAME: ${{ secrets.SHOP_NAME }}
+      SHOP_ADDRESS: ${{ secrets.SHOP_ADDRESS }}
+      SHOP_EMAIL: ${{ secrets.SHOP_EMAIL }}
+      SHOP_VAT: ${{ secrets.SHOP_VAT }}
+      SHOP_LOGO: ${{ secrets.SHOP_LOGO }}
+      SHOP_PHONE: ${{ secrets.SHOP_PHONE }}
+      MOLLIE_API_KEY: ${{ secrets.MOLLIE_API_KEY }}
+      MOLLIE_REDIRECT_URL: ${{ secrets.MOLLIE_REDIRECT_URL }}
+      MOLLIE_WEBHOOK_URL: ${{ secrets.MOLLIE_WEBHOOK_URL }}
+      MOLLIE_PROFILE_ID: ${{ secrets.MOLLIE_PROFILE_ID }}
+      SHIPPO_API_KEY: ${{ secrets.SHIPPO_API_KEY }}
+
     strategy:
       max-parallel: 4
       matrix:

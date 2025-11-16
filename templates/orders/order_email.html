@@ -1,0 +1,34 @@
+<h2>Thank you for your order, {{ order.first_name }}!</h2>
+<p>Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
+
+<h3>Order Summary</h3>
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Options</th>
+    <th>Qty</th>
+    <th>Unit Price</th>
+    <th>Total</th>
+  </tr>
+  {% for item in order.items.all %}
+  <tr>
+    <td>{{ item.product.title }}</td>
+    <td>
+      {% if item.dimensions %}Dimensions: {{ item.dimensions }}<br>{% endif %}
+      {% if item.frame_type %}Frame: {{ item.frame_type }}<br>{% endif %}
+      {% if item.frame_color %}Color: {{ item.frame_color }}{% endif %}
+    </td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.price }} €</td>
+    <td>{{ item.get_cost }} €</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<p><strong>Total: {{ order.get_total_cost }} €</strong></p>
+
+<p>We will ship your order to:<br>
+{{ order.address }}, {{ order.postal_code }} {{ order.city }}</p>
+
+<p>Best regards,<br>
+LensCove Team</p>

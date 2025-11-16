@@ -1,0 +1,94 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<!-- Product Details -->
+<section class="product-details pt-5 bg-light md-mb-4">
+   <div class="container pt-5 mb-3">
+      <h4 class="text-success-emphasis mb-md-3">Complete you order</h4>
+      <hr class="md-md-3">
+      <div class="row justify-content-between gx-4">
+         <div class="col-12 col-md-5 mb-3">
+            <div class="card shadow-sm mb-3">
+               <img class="product-img-details mt-2 mt-md-3" src="{{product.image.url}}" alt="Product Image" />
+               <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                     <span>Unit price:</span>
+                     <span id="unitPrice" class="fw-bold">{{product.price}} €</span>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col-12 col-md-5">
+            <div class="flex-fill d-flex flex-column">
+               <form method="POST" action="{% url 'cart:cart_add' product.id %}">
+                  {% csrf_token %}
+
+                  <div class="row frame-color spacing-between-rows">
+                     <h6 class="text-success-emphasis">Dimensions:</h6>
+                     <div class="btn-group" role="group" aria-label="Dimension">
+                        {% for value, label in form.dimensions.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.dimensions.name }}"
+                           id="dimensions-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.dimensions.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="dimensions-{{ forloop.counter }}">{{ label }}</label>
+                        {% endfor %}
+                     </div>
+                  </div>
+
+                  <div class="row frame-color spacing-between-rows">
+                     <h6 class="text-success-emphasis">Frame Type:</h6>
+                     <div class="btn-group" role="group" aria-label="Frame Typeframe_type">
+                        {% for value, label in form.frame_type.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.frame_type.name }}"
+                           id="frame_type-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.frame_type.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="frame_type-{{ forloop.counter }}">{{ label }}</label>
+                        {% endfor %}
+                     </div>
+                  </div>
+
+                  <div class="row frame-color spacing-between-rows">
+                     <h6 class="text-success-emphasis">Frame Type:</h6>
+                     <div class="btn-group" role="group" aria-label="Frame Typeframe_type">
+                        {% for value, label in form.frame_color.field.choices %}
+                        <input type="radio"
+                           class="btn-check"
+                           name="{{ form.frame_color.name }}"
+                           id="frame_color-{{ forloop.counter }}"
+                           value="{{ value }}"
+                           autocomplete="off"
+                           {% if form.frame_color.value == value %}checked{% endif %}>
+                           <label class="btn btn-outline-dark" for="frame_color-{{ forloop.counter }}">{{ label }}</label>
+                        {% endfor %}
+                     </div>
+                  </div>
+
+                  <div class="row quantity spacing-between-rows">
+                     <h6 class="text-success-emphasis">Quantity:</h6>
+                     <div class="d-flex gap-2 justify-content-center text-success-emphasis">
+                        <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">−</button>
+                        {{ form.quantity }}
+                        <button class="btn btn-outline-secondary" type="button" id="increaseBtn">+</button>
+                     </div>
+                  </div>
+               
+                  <div class="row add-to-cart-button spacing-between-rows">
+                     <div class="text-center my-4 mb-3">
+                        <button class="btn btn-dark btn-lg mt-3 mb-3" type="submit">Add to cart</button>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<!-- Product Details -->
+ <script src="{% static 'js/product-quantity-selector.js' %}"></script>
+{% endblock %}
