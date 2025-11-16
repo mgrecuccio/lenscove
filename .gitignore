@@ -9,3 +9,4 @@ tmp/emails/
 static/media/invoices/
 static/media/shipping_labels/
 .env
+data.json
