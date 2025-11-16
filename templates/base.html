@@ -40,12 +40,12 @@
                   </li>
                </ul>
                <div class="ms-auto me-1 d-grid d-md-block gap-2 md-2 mb-md-0">
-                  <a class="btn btn-alert navbar-btn text-white btn-outline-secondary me-md-2" type="button" href="/">
+                  <!--<a class="btn btn-alert navbar-btn text-white btn-outline-secondary me-md-2" type="button" href="/">
                   Register
                   </a>
                   <a class="btn btn-alert navbar-btn text-white btn-outline-secondary me-md-2" type="button" href="/">
                   Login
-                  </a>
+                  </a>-->
                   <a href="{% url 'cart:cart_detail' %}" 
                      class="btn position-relative btn-outline-secondary me-md-2">
                   <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i>
@@ -81,25 +81,28 @@
                   <div class="col-md-2">
                      <h6>Main menu</h6>
                      <ul class="list-unstyled small">
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
+                        <li><a href="{% url 'store' %}" class="text-decoration-none text-secondary">Home</a></li>
+                        <li><a href="{% url 'gallery' %}" class="text-decoration-none text-secondary">Gallery</a></li>
+                        <li><a href="{% url 'contacts:contact_view' %}" class="text-decoration-none text-secondary">Contact</a></li>
+                        <li><a href="{% url 'cart:cart_detail' %}" class="text-decoration-none text-secondary">Cart</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">About</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">FAQ</a></li>
                      </ul>
                   </div>
                   <div class="col-md-2">
                      <h6>Misc</h6>
                      <ul class="list-unstyled small">
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
-                        <li><a href="#" class="text-decoration-none text-secondary">Link Item</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Privacy Policy</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Returns & Refunds</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Shipping Info</a></li>
+                        <li><a href="#" class="text-decoration-none text-secondary">Cookie Policy</a></li>
                      </ul>
                   </div>
                   <div class="col-md-5">
                      <h6>Follow me</h6>
                      <p>
-                        <a href="#" class="btn btn-sm btn-primary rounded-pill px-md-3 d-inline-flex align-items-center mb-2">
+                        <a href="https://www.linkedin.com/in/marcogrecuccio/" class="btn btn-sm btn-primary rounded-pill px-md-3 d-inline-flex align-items-center mb-2">
                         <i class="fa-brands fa-square-linkedin me-1"></i>
                         <span class="d-md-block d-none">LinkedIn</span>
                         </a>
@@ -107,7 +110,7 @@
                         <i class="fa-brands fa-instagram me-1"></i>
                         <span class="d-md-block d-none">Instagram</span>
                         </a>
-                        <a href="#" class="btn btn-sm btn-light rounded-pill px-md-3 d-inline-flex align-items-center mb-2">
+                        <a href="https://www.flickr.com/people/163099228@N03/" class="btn btn-sm btn-light rounded-pill px-md-3 d-inline-flex align-items-center mb-2">
                         <i class="fa-brands fa-flickr me-1"></i>
                         <span class="d-md-block d-none">Flickr</span>
                         </a>
