@@ -10,3 +10,4 @@ static/media/invoices/
 static/media/shipping_labels/
 .env
 data.json
+.env.prod
