@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: lenscove_db
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lenscove_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-lenscove}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lenscove}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      POSTGRES_DB: ${POSTGRES_DB:-lenscove_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-lenscove}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lenscove}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    command:
+      - sh
+      - -c
+      - |
+        python manage.py migrate --noinput
+        python manage.py collectstatic --noinput
+        exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./media:/app/media
+      - staticfiles:/app/staticfiles
+      - emails:/tmp/emails
+    depends_on:
+      - db
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "8443:443"
+    volumes:
+      - ./media:/srv/media:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./localhost+1.pem:/etc/caddy/cert.pem:ro
+      - ./localhost+1-key.pem:/etc/caddy/key.pem:ro
+    depends_on:
+      - web
+volumes:
+  postgres_data:
+  staticfiles:
+  media:
+  emails:
+  
