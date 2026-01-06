@@ -8,5 +8,12 @@ config/__pycache__/
 tmp/emails/
 static/media/invoices/
 static/media/shipping_labels/
+staticfiles
 .env
 data.json
+.env.prod
+.
+localhost+1-key.pem
+localhost+1.pem
+media/invoices
+media/shipping_labels
