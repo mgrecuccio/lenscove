@@ -55,18 +55,20 @@ REFERRER_POLICY = "same-origin"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# --- Email (file backend for now) ---
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = os.getenv("EMAIL_FILE_PATH", "/tmp/emails")
+# --- Email ---
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", "LensCove <no-reply@lenscove.com>"
-)
-CONTACT_RECEIVER_EMAIL = os.getenv(
-    "CONTACT_RECEIVER_EMAIL", "admin@lenscove.com"
-)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "0") == "1"
 
-DEFAULT_FROM_EMAIL = 'LensCove <marco.grecuccio@mgrtech.eu>'
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "20"))
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "LensCove <no-reply@lenscove.com>")
+CONTACT_RECEIVER_EMAIL = os.getenv("CONTACT_RECEIVER_EMAIL", "admin@lenscove.com")
 
 # Invoice settings
 SHOP_NAME = os.getenv("SHOP_NAME", "LensCove Shop")
@@ -75,6 +77,10 @@ SHOP_EMAIL = os.getenv("SHOP_EMAIL", "support@lenscove.com")
 SHOP_VAT = os.getenv("SHOP_VAT", "BE123456789")
 SHOP_LOGO = os.getenv("SHOP_LOGO", "static/img/logo.png")
 SHOP_PHONE = os.getenv("SHOP_PHONE", "+32 2 123 45 67")
+
+# Email settings
+BRAND_LOGO_URL = os.getenv("BRAND_LOGO_URL", "")
+BRAND_BANNER_URL = os.getenv("BRAND_BANNER_URL", "")
 
 # Mollie settings
 MOLLIE_API_KEY = os.getenv("MOLLIE_API_KEY", "")

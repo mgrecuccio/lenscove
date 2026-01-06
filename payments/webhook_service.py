@@ -30,7 +30,7 @@ class WebhookService:
 
 
     @staticmethod
-    def _mark_paid(order, payment):
+    def _mark_paid(order: Order, payment: Payment):
         payment.mark_paid()
         order.mark_paid()
         logger.info(f"Order {order.id} marked as paid")
@@ -42,21 +42,32 @@ class WebhookService:
             ContentFile(pdf_buffer.read()),
             save=True,
         )
+
+        logger.info(f"Invoice saved for order {order.id}")
         
-        EmailService.send_order_confirmation_email(order, pdf_buffer)
-        logger.info(f"Invoice created and confirmation sent for order {order.id}")
-
         shipment = Shipment.objects.create(order=order)
+        logger.info(f"Shipment record created for order {order.id} (status={shipment.status})")
 
-        try:
-            label_info = ShippingService.create_shippo_label(order)
-            shipment.mark_label_created(
-                shippo_id=label_info["shippo_id"],
-                tracking_number=label_info["tracking_number"],
-                tracking_url=label_info["tracking_url"],
-                label_file=label_info["label_file"],
-            )
-            logger.info(f"Shippo label successully created for shippo_id = {shipment.shippo_id}")
-        except Exception as exc:
-            shipment.update_status("error")
-            logger.exception(f"Shipment creation failed for order {order.id}: {exc}")
+        def post_commit_tasks():
+            order_refreshed = Order.objects.get(id=order.id)
+            try:
+                if not order.confirmation_mail_sent_at:
+                    EmailService.send_order_confirmation_email(order_refreshed)
+                    logger.info(f"Confirmation sent for order {order_refreshed.id}")
+            except Exception as exc:
+                logger.exception(f"Failed to send confirmation email for order {order_refreshed.id}: {exc}")
+            
+            try:
+                label_info = ShippingService.create_shippo_label(order_refreshed)
+                shipment.mark_label_created(
+                    shippo_id=label_info["shippo_id"],
+                    tracking_number=label_info["tracking_number"],
+                    tracking_url=label_info["tracking_url"],
+                    label_file=label_info["label_file"],
+                )
+                logger.info(f"Shippo label successully created for shippo_id = {shipment.shippo_id}")
+            except Exception as exc:
+                shipment.update_status("error")
+                logger.exception(f"Shipment creation failed for order {order_refreshed.id}: {exc}")
+
+        transaction.on_commit(post_commit_tasks)
