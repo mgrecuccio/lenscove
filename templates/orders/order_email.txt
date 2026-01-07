@@ -1,17 +1,19 @@
-Thank you for your order, {{ order.first_name }}!
+Thanks {{ order.first_name }}, your order is confirmed.
 
-Your order #{{ order.id }} has been placed successfully.
+Order #{{ order.id }}
 
-Order Summary:
+Shipping to:
+{{ order.address }}
+{{ order.postal_code }} {{ order.city }}
+
+Items:
 {% for item in order.items.all %}
-- {{ item.product.title }} ({{ item.dimensions }}, {{ item.frame_type }}, {{ item.frame_color }})
-  Qty: {{ item.quantity }} x {{ item.price }} € = {{ item.get_cost }} €
+- {{ item.product.title }} ({{ item.quantity }} × €{{ item.price|floatformat:2 }}) = €{{ item.get_cost|floatformat:2 }}
 {% endfor %}
 
-Total: {{ order.get_total_cost }} €
+Total: €{{ order.get_total_cost|floatformat:2 }}
 
-We will ship your order to:
-{{ order.address }}, {{ order.postal_code }} {{ order.city }}
+Your invoice is attached as a PDF.
 
 Best regards,
 LensCove Team

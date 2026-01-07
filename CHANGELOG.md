@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.1] — 2026-01-07
+### 🔧 Second Public MVP Release
+
+#### Added
+- Production-ready Docker Compose configuration for deployment
+- Dedicated production Django settings file (`prod.py`)
+- Support for real SMTP configuration for production email delivery
+
+#### Changed
+- Refactored order confirmation email system
+  - SMTP settings now configurable via environment variables
+  - Improved and cleaner HTML email template for customer communications
+
+---
+
 ## [0.1.0] — 2025-11-16
 ### 🎉 First Public MVP Release
 
@@ -33,3 +48,33 @@ All notable changes to this project will be documented in this file.
 - Promo codes
 - Search functionality
 - Multi-language support
+
+### AI-Powered Features (Planned)
+
+#### Automatic Image Metadata Extraction
+- Suggested title generation
+- Tags and keywords extraction
+- Color palette detection
+- Object and theme recognition
+- Orientation and composition analysis
+
+#### AI-Based Product Descriptions
+- Poetic or modern product descriptions
+- Short marketing preview texts
+- SEO-optimized keywords
+- Admin-side regeneration support
+
+#### Smart Size and Frame Recommendations
+- Popular size recommendations
+- Frame suggestions based on image colors
+- Matching frame sets for gallery walls
+
+#### Similar Image Suggestions
+- Visual similarity search using embeddings
+- "You may also like" recommendations to increase discovery
+
+#### AI Customer Assistant
+- Help with size and frame selection
+- Shipping and delivery questions
+- Order status lookup
+- Art curation via conversational search
