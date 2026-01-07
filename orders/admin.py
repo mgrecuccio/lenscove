@@ -28,7 +28,7 @@ class ShipmentInline(admin.StackedInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'first_name', 'last_name', 'email', 'paid', 'created', 'invoice_link']
+    list_display = ['id', 'first_name', 'last_name', 'email', 'paid', 'created', 'invoice_link', 'confirmation_mail_sent_at',]
     list_filter = ['paid', 'created', 'updated']
     inlines = [OrderItemInline, ShipmentInline]
 

@@ -13,12 +13,21 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
     invoice_pdf = models.FileField(upload_to='invoices/', blank=True, null=True)
+    confirmation_mail_sent_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="When the order confirmation email was successfully sent",
+    )
 
 
     def mark_paid(self):
         self.paid = True
         self.updated = timezone.now()
         self.save(update_fields=['paid', 'updated'])
+
+    def mark_confirmation_mail_sent_at(self):
+        self.confirmation_mail_sent_at = timezone.now()
+        self.save(update_fields=['confirmation_mail_sent_at'])
 
 
     class Meta:
