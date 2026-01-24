@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.2] — 2026-01-24
+### 🔧 Third Public MVP Release
+
+#### Added
+- `.dockerignore` to exclude local and runtime-only files from Docker images
+
+#### Changed
+- Refactored Docker setup for production readiness
+  - Dockerfile now uses a multi-stage build to reduce image size
+  - `docker-compose.prod.yml` uses named volumes only (no bind mounts)
+  - `makemigrations` removed from production startup sequence
+
+---
+
 ## [0.1.1] — 2026-01-07
 ### 🔧 Second Public MVP Release
 
