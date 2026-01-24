@@ -1,0 +1,28 @@
+# VCS
+.git
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local venvs (your 87M culprit)
+venv/
+.venv/
+ENV/
+
+# Local dev artifacts
+tmp/
+*.sqlite3
+*.log
+
+# Django collected/static/media outputs (don’t bake uploads)
+media/
+staticfiles/
+
+# Env/certs (also: don’t ship private keys)
+.env
+.env.*
+*.pem
+*.key
