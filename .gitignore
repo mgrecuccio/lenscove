@@ -18,3 +18,4 @@ localhost+1.pem
 media/invoices
 media/shipping_labels
 docker-commands.txt
+release-process.txt
