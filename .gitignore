@@ -19,3 +19,6 @@ media/invoices
 media/shipping_labels
 docker-commands.txt
 release-process.txt
+azure/
+.env.azure
+config/settings/azure.py

@@ -23,14 +23,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Only runtime libs (no compilers)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install /usr/local
 
-# Copy app last (keeps caching good)
 COPY . .
 
 CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000"]
