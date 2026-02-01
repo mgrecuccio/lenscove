@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.4] — 2026-02-01
+### 🔧 Release Automation via GitHub Actions
+
+### Added
+- Automated release and deployment pipeline
+  - Releases are created automatically from Git tags
+  - Linux/amd64 Docker images are built via CI and published to Azure Container Registry
+- Azure Deployment documentation
+  - `docs/azure-aci-lab.md` describing the LensCove deployment process
+  - `docs/azure-dns-configuration.md` for the Cloudflare and Azure DNS/HTTPS configuration
+- `docs/contributing.md` to explain how to contribute
+
+
+---
+
 ## [0.1.2] — 2026-01-24
 ### 🔧 Third Public MVP Release
 
