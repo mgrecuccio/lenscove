@@ -1,10 +1,21 @@
-https://localhost {
-    tls /etc/caddy/cert.pem /etc/caddy/key.pem
+{
+  # Optional but recommended: set an email for ACME account notices
+  email admin@lens-cove.com
 
-    handle_path /media/* {
-        root * /srv/media
-        file_server
-    }
+  # Persist certs in /data (you already mount azure file share there)
+  storage file_system /data
+}
 
-    reverse_proxy web:8000
+lens-cove.com, www.lens-cove.com {
+
+  encode gzip
+
+  # Serve uploaded media directly (faster, avoids Django handling files)
+  handle_path /media/* {
+    root * /srv/media
+    file_server
+  }
+
+  # Everything else goes to Django/Gunicorn
+  reverse_proxy localhost:8000
 }

@@ -300,6 +300,17 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000
 
 ---
 
+# 🩺 Azure Documentation
+- [Azure ACI (Lab Deployment)](docs/azure-aci-lab.md)
+- [DNS Configuration](docs/azure-dns-configuration.md)
+
+---
+
+# 🩺 Contributing to LensCove
+- [Contributing](docs/contributing.md)
+
+---
+
 # 🧩 Badges
 
 ![Python](https://img.shields.io/badge/python-3.13-blue)

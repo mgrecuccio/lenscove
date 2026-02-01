@@ -70,8 +70,8 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "20"))
 
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "LensCove <no-reply@lenscove.com>")
-CONTACT_RECEIVER_EMAIL = os.getenv("CONTACT_RECEIVER_EMAIL", "admin@lenscove.com")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "LensCove Team <marco.grecuccio@mgrtech.eu>")
+CONTACT_RECEIVER_EMAIL = os.getenv("CONTACT_RECEIVER_EMAIL", "marco.grecuccio@mgrtech.eu")
 
 # Invoice settings
 SHOP_NAME = os.getenv("SHOP_NAME", "LensCove Shop")
@@ -87,7 +87,7 @@ BRAND_BANNER_URL = os.getenv("BRAND_BANNER_URL", "")
 
 # Mollie settings
 MOLLIE_API_KEY = os.getenv("MOLLIE_API_KEY", "")
-MOLLIE_REDIRECT_URL = os.getenv("MOLLIE_REDIRECT_URL", "http://localhost:8000/payment/return/")
+MOLLIE_REDIRECT_URL = os.getenv("MOLLIE_REDIRECT_URL", "")
 MOLLIE_WEBHOOK_URL = os.getenv("MOLLIE_WEBHOOK_URL", "")
 MOLLIE_PROFILE_ID = os.getenv("MOLLIE_PROFILE_ID", "")
 
