@@ -1,0 +1,165 @@
+name: Create or Update GitHub Release + Push Image to ACR
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create/update (e.g. v0.1.2)"
+        required: true
+        type: string
+      draft:
+        description: "Create/keep the release as a draft"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: write
+
+env:
+  ACR_LOGIN_SERVER: lenscovelabacr.azurecr.io
+  IMAGE_NAME: lenscove-web
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag + safety check (tag must be on main)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="${{ github.event.inputs.tag }}"
+            draft="${{ github.event.inputs.draft }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+            draft="true"
+          fi
+
+          # Basic validation for tag name
+          if [[ ! "$tag" =~ ^v[0-9]+(\.[0-9]+){2}([\-\.].+)?$ ]]; then
+            echo "ERROR: Tag '$tag' does not look like a version tag (expected like v0.1.2)." >&2
+            exit 1
+          fi
+
+          git fetch origin main --depth=0
+          git fetch --tags --force
+
+          if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "ERROR: Tag '$tag' not found in this repository." >&2
+            echo "Hint: push the tag first: git push origin $tag" >&2
+            exit 1
+          fi
+
+          sha="$(git rev-list -n 1 "$tag")"
+          echo "Using tag: $tag"
+          echo "Tag commit: $sha"
+          echo "Draft mode: $draft"
+
+          if ! git merge-base --is-ancestor "$sha" "origin/main"; then
+            echo "ERROR: Tag $tag ($sha) is not on main. Refusing to create/update release." >&2
+            echo "Hint: merge to main first, then create the tag on main, then push the tag." >&2
+            exit 1
+          fi
+
+          version="${tag#v}"   # v0.1.2 -> 0.1.2
+
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          echo "DRAFT=$draft" >> "$GITHUB_ENV"
+
+      # ---------- NEW: buildx + push to ACR ----------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Azure ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push linux/amd64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # ---------- END NEW ----------
+
+      - name: Build release notes from CHANGELOG.md
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="${VERSION}"  # e.g. 0.1.2
+
+          if [[ ! -f CHANGELOG.md ]]; then
+            echo "CHANGELOG.md not found" >&2
+            exit 1
+          fi
+
+          awk -v ver="## ["$version"]" '
+            $0 == ver { printing=1 }
+            printing && $0 ~ /^## \[/ && $0 != ver { exit }
+            printing { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+
+          if [[ ! -s RELEASE_NOTES.md ]]; then
+            echo "No changelog section found for [$version] in CHANGELOG.md" >&2
+            exit 1
+          fi
+
+          {
+            echo
+            echo "---"
+            echo "### Changelog"
+            echo "View the full changelog at this release:"
+            echo "https://github.com/${GITHUB_REPOSITORY}/blob/${TAG}/CHANGELOG.md"
+          } >> RELEASE_NOTES.md
+
+      - name: Create or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${TAG}"
+          title="LensCove $tag"
+
+          draft_flag=""
+          if [[ "${DRAFT}" == "true" ]]; then
+            draft_flag="--draft"
+          fi
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release for $tag already exists. Updating..."
+            gh release edit "$tag" \
+              --title "$title" \
+              --notes-file RELEASE_NOTES.md \
+              $draft_flag
+          else
+            echo "Creating release for $tag..."
+            gh release create "$tag" \
+              --title "$title" \
+              --notes-file RELEASE_NOTES.md \
+              $draft_flag
+          fi
