@@ -116,9 +116,9 @@ jobs:
             exit 1
           fi
 
-          awk -v ver="## ["$version"]" '
-            $0 == ver { printing=1 }
-            printing && $0 ~ /^## \[/ && $0 != ver { exit }
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { printing=1 }
+            printing && $0 ~ /^## \[/ && $0 !~ "^## \\[" v "\\]" { exit }
             printing { print }
           ' CHANGELOG.md > RELEASE_NOTES.md
 
