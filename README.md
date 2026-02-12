@@ -9,6 +9,7 @@ It includes a complete checkout workflow, online payments (Mollie), shipping lab
 
 - [Features](#-features)
 - [Tech Stack](#️-tech-stack)
+- [Architecture Overview](#️-architecture-overview)
 - [Project Structure](#-project-structure)
 - [Local Development (non-Docker)](#-local-development-non-docker)
 - [Docker Development Setup](#-docker-development-setup)
@@ -56,6 +57,33 @@ It includes a complete checkout workflow, online payments (Mollie), shipping lab
 - **Shippo** for shipping  
 
 ---
+
+## 🌐 Architecture Overview
+
+This application is deployed using **Azure Container Instances (ACI)**
+behind a **Caddy reverse proxy** with automatic TLS via Let's Encrypt.
+
+
+![image info](./docs/Lenscove_infra.png)
+
+### High-Level Request Flow
+
+1.  Users access `lens-cove.com`
+2.  Cloudflare DNS resolves to the ACI public endpoint
+3.  Traffic hits Caddy (`:80` / `:443`)
+4.  Caddy terminates TLS and reverse proxies to Django
+5.  Django connects securely to PostgreSQL (TLS enforced)
+
+---------------------------------------------------------
+## 🔐 Security Model
+
+-   HTTPS enforced via Caddy + Let's Encrypt
+-   TLS required for PostgreSQL connections
+-   Django container not publicly accessible
+-   Persistent storage via Azure Files
+-   Images pulled securely from ACR
+
+------------------------------------------------------------------------
 
 # 📂 Project Structure
 
@@ -300,19 +328,21 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000
 
 ---
 
-# 🩺 Azure Documentation
+# 📚 Azure Documentation
 - [Azure ACI (Lab Deployment)](docs/azure-aci-lab.md)
 - [DNS Configuration](docs/azure-dns-configuration.md)
 
 ---
 
-# 🩺 Contributing to LensCove
+# 🤝 Contributing to LensCove
 - [Contributing](docs/contributing.md)
 
 ---
 
 # 🧩 Badges
 
-![Python](https://img.shields.io/badge/python-3.13-blue)
-![Django](https://img.shields.io/badge/django-5.2.6-green)
-![Docker](https://img.shields.io/badge/docker-ready-blue)
+![Azure](https://img.shields.io/badge/Hosted%20on-Azure-0078D4?logo=microsoft-azure&logoColor=white)
+![Docker](https://img.shields.io/badge/Containerized-Docker-2496ED?logo=docker&logoColor=white)
+![Django](https://img.shields.io/badge/Backend-Django-092E20?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Caddy](https://img.shields.io/badge/Reverse%20Proxy-Caddy-1F88C0)
